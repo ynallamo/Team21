@@ -143,3 +143,258 @@ body {
     text-decoration: underline;
   }
   
+  /* Feed Page Container */
+.feed-page-container {
+    display: flex;
+    height: 100vh;
+    background-color: #f9f9f9;
+  }
+  
+  /* Sidebar */
+  .feed-page-container .sidebar {
+    width: 250px;
+    background: #f4f4f4;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .feed-page-container .sidebar .logo h1 {
+    color: #71b247;
+    font-size: 24px;
+    margin: 0;
+  }
+  
+  .feed-page-container .sidebar .menu ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .feed-page-container .sidebar .menu ul li {
+    margin: 15px 0;
+  }
+  
+  .feed-page-container .sidebar .menu ul li a {
+    text-decoration: none;
+    color: #333;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border-radius: 5px;
+    transition: background 0.2s;
+  }
+  
+  .feed-page-container .sidebar .menu ul li a:hover {
+    background: #e6e6e6;
+  }
+  
+  .feed-page-container .sidebar .menu ul li .icon {
+    margin-right: 10px;
+  }
+  
+  .feed-page-container .sidebar .badge {
+    background: red;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 12px;
+    margin-left: 5px;
+  }
+  
+  .feed-page-container .sidebar .post-btn {
+    background: #71b247;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .feed-page-container .sidebar footer {
+    font-size: 12px;
+    color: #999;
+    text-align: center;
+  }
+  
+  /* Main Content */
+  .feed-page-container .main {
+    flex: 1;
+    padding: 20px;
+    background: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .feed-page-container .main .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .feed-page-container .main .header .search-bar {
+    width: 70%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+  }
+  
+  .feed-page-container .main .header .post-btn-header {
+    background: #71b247;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .feed-page-container .main .tabs {
+    display: flex;
+    margin-bottom: 20px;
+  }
+  
+  .feed-page-container .main .tab {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    background: #fff;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 5px 5px 0 0;
+  }
+  
+  .feed-page-container .main .tab.active {
+    background: #71b247;
+    color: white;
+  }
+  
+  .feed-page-container .main .feed {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  /* Post Styling */
+  .feed-page-container .main .feed .post {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    font-size: 14px;
+  }
+  
+  .feed-page-container .main .feed .post-header {
+    color: #333;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  
+  .feed-page-container .main .feed .post-text {
+    margin: 10px 0;
+  }
+  
+  .feed-page-container .main .feed .comment-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-top: 10px;
+  }
+  
+  .feed-page-container .main .feed .post-actions {
+    margin-top: 10px;
+    display: flex;
+    gap: 15px;
+    font-size: 14px;
+    color: #555;
+  }
+  
+  /* Sponsored Ad */
+  .feed-page-container .main .feed .post.ad {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .feed-page-container .main .feed .post.ad .ad-header {
+    color: gray;
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+  
+  .feed-page-container .main .feed .post.ad img {
+    margin: 10px 0;
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    border-radius: 5px;
+    background: #e6e6e6;
+  }
+  
+  .feed-page-container .main .feed .post.ad .ad-btn {
+    background: #71b247;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  
+  /* Right Sidebar */
+  .feed-page-container .right-sidebar {
+    width: 300px;
+    background: #fff;
+    padding: 20px;
+    border-left: 1px solid #ddd;
+  }
+  
+  .feed-page-container .right-sidebar h3 {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+  
+  .feed-page-container .right-sidebar p {
+    font-size: 14px;
+    color: #555;
+  }
+  
+  .feed-page-container .right-sidebar a {
+    color: #71b247;
+    text-decoration: none;
+  }
+  
+  .feed-page-container .right-sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+  }
+  
+  .feed-page-container .right-sidebar ul li {
+    margin: 10px 0;
+    font-size: 14px;
+  }
+  
+  .feed-page-container .right-sidebar ul li .distance {
+    color: #777;
+  }
+  
+  .feed-page-container .right-sidebar .invite-btn {
+    background: #000;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 10px;
+  }
+  

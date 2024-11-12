@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nextdoor Feed</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <div class="feed-page-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="logo">
+        <h1>nextdoor</h1>
+      </div>
+      <nav class="menu">
+        <ul>
+          <li><a href="#"><span class="icon">🏠</span> Home</a></li>
+          <li><a href="#"><span class="icon">🔎</span> Discover</a></li>
+          <li><a href="#"><span class="icon">🛍️</span> For Sale & Free</a></li>
+          <li><a href="#"><span class="icon">🔔</span> Notifications <span class="badge">15</span></a></li>
+          <li><a href="#"><span class="icon">💬</span> Chats</a></li>
+          <li><a href="#"><span class="icon">👥</span> Neighbors</a></li>
+        </ul>
+      </nav>
+      <button class="post-btn">+ Post</button>
+      <footer>
+        <p>Help • Guidelines • Legal • Privacy<br>About • Jobs • Press • Blog</p>
+        <p>© 2024 Nextdoor</p>
+      </footer>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+      <header class="header">
+        <input type="text" placeholder="Search for Electrician" class="search-bar">
+        <button class="post-btn-header">+ Post</button>
+      </header>
+      <div class="tabs">
+        <button class="tab active">For you</button>
+        <button class="tab">Recent</button>
+        <button class="tab">Nearby</button>
+        <button class="tab">Trending</button>
+      </div>
+      <div class="feed">
+        <!-- Post 1 -->
+        <div class="post">
+          <div class="post-header">
+            <span class="user">Krystle Slaughter</span>
+            <span class="location">• Highland Village</span>
+            <span class="time">2 hr ago</span>
+          </div>
+          <p class="post-text">Hi neighbors! I have a small job today for an experienced handyman who could use a quick extra buck today! Specifically it’s applying my peel and stick tile down approximately 200 square feet and removing a medicine cabinet/applying another. Any suggestions or takers?</p>
+          <input type="text" class="comment-input" placeholder="Add a comment...">
+          <div class="post-actions">
+            <span>❤️ 1</span>
+            <span>💬 2</span>
+            <span>🔗 Share</span>
+          </div>
+        </div>
+
+        <!-- Sponsored Ad -->
+        <div class="post ad">
+          <div class="ad-header">Sponsored</div>
+          <p class="ad-text"><strong>Bloomington, It’s Time for a Fresh Start. Get 50% off Your First Box.</strong><br>Real food has real benefits. Try feeding fresh today with 50% off your first box!</p>
+          <img src="https://via.placeholder.com/300x150" alt="Ad Image">
+          <button class="ad-btn">Shop now</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Right Sidebar -->
+    <aside class="right-sidebar">
+      <div class="invite">
+        <h3>Invite nearby neighbors</h3>
+        <p>Your invitation will include your first name, your neighborhood, and helpful information about Nextdoor. <a href="#">Learn more</a></p>
+        <ul>
+          <li><input type="checkbox"> 250 S Washington St Apt 306 <span class="distance">< 0.1 mi away</span></li>
+          <li><input type="checkbox"> 250 S Washington St Apt 407 <span class="distance">< 0.1 mi away</span></li>
+          <li><input type="checkbox"> 104 E Kirkwood Ave Apt 305 <span class="distance">< 0.1 mi away</span></li>
+        </ul>
+        <button class="invite-btn">Send 3 invitations</button>
+      </div>
+    </aside>
+  </div>
+</body>
+</html>
