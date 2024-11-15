@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}List Item{% endblock %}
+
+{% block content %}
+<h1>List an Item</h1>
+
+<!-- Selection box to choose between listing a resource or community event -->
+<div class="form-group">
+    <label for="itemType">Choose an item type to list:</label>
+    <select class="form-control" id="itemType" onchange="toggleForm()">
+        <option value="">-- Select an Option --</option>
+        <option value="resource">Resource</option>
+        <option value="community">Community Event/Space</option>
+    </select>
+</div>
+
+<!-- Resource Form -->
+<form id="resourceForm" method="POST" action="{{ url_for('add_resource') }}" enctype="multipart/form-data" style="display: none;">
+    <h3>List a Resource</h3>
+    <div class="form-group">
+        <label for="title">Title</label>
+        <input type="text" class="form-control" id="title" name="title" placeholder="Enter resource title" required>
+    </div>
+    <div class="form-group">
+        <label for="description">Description</label>
+        <textarea class="form-control" id="description" name="description" rows="3" placeholder="Enter resource description" required></textarea>
+    </div>
+    <div class="form-group">
+        <label for="category">Category</label>
+        <input type="text" class="form-control" id="category" name="category" placeholder="Enter category" required>
+    </div>
+    <div class="form-group">
+        <label for="availability">Availability</label>
+        <input type="text" class="form-control" id="availability" name="availability" placeholder="Enter availability status" required>
+    </div>
+    <div class="form-group">
+        <label for="date_posted">Date Posted</label>
+        <input type="date" class="form-control" id="date_posted" name="date_posted" required>
+    </div>
+    <div class="form-group">
+        <label for="user_id">User ID</label>
+        <input type="text" class="form-control" id="user_id" name="user_id" placeholder="Enter user ID" required>
+    </div>
+    <div class="form-group">
+        <label for="images">Resource Image</label>
+        <input type="file" class="form-control-file" id="images" name="images">
+    </div>
+    <button type="submit" class="btn btn-primary">Submit Resource</button>
+</form>
+
+<!-- Community Event/Space Form -->
+<form id="communityForm" method="POST" action="{{ url_for('create_community') }}" enctype="multipart/form-data" style="display: none;">
+    <h3>List a Community Event/Space</h3>
+    <div class="form-group">
+        <label for="title">Title</label>
+        <input type="text" class="form-control" id="title" name="title" placeholder="Enter event title" required>
+    </div>
+    <div class="form-group">
+        <label for="description">Description</label>
+        <textarea class="form-control" id="description" name="description" rows="3" placeholder="Enter event description" required></textarea>
+    </div>
+    <div class="form-group">
+        <label for="location">Location</label>
+        <input type="text" class="form-control" id="location" name="location" placeholder="Enter location" required>
+    </div>
+    <div class="form-group">
+        <label for="availability">Availability</label>
+        <input type="text" class="form-control" id="availability" name="availability" placeholder="Enter availability status" required>
+    </div>
+    <div class="form-group">
+        <label for="user_id">User ID</label>
+        <input type="text" class="form-control" id="user_id" name="user_id" placeholder="Enter user ID" required>
+    </div>
+    <div class="form-group">
+        <label for="images">Event Image</label>
+        <input type="file" class="form-control-file" id="images" name="images">
+    </div>
+    <button type="submit" class="btn btn-primary">Submit Community Event/Space</button>
+</form>
+
+<!-- JavaScript to toggle between forms -->
+<script>
+    function toggleForm() {
+        const itemType = document.getElementById("itemType").value;
+        const resourceForm = document.getElementById("resourceForm");
+        const communityForm = document.getElementById("communityForm");
+
+        // Hide both forms initially
+        resourceForm.style.display = "none";
+        communityForm.style.display = "none";
+
+        // Show the selected form
+        if (itemType === "resource") {
+            resourceForm.style.display = "block";
+        } else if (itemType === "community") {
+            communityForm.style.display = "block";
+        }
+    }
+</script>
+{% endblock %}

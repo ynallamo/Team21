@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Welcome Section -->
+    <div class="jumbotron">
+        <h1 class="display-4">Welcome{{ ' ' + session['user_name'] if session.get('user_name') else '' }}!</h1>
+        <p class="lead">This is your community dashboard. Stay updated with the latest news and events!</p>
+        <hr class="my-4">
+        <p>Explore community spaces, list resources, or join events to make the most of your neighborhood!</p>
+        <a class="btn btn-primary btn-lg" href="{{ url_for('rent_item') }}" role="button">Explore Items to Rent</a>
+    </div>
+
+    <!-- News Feed Section -->
+    <h2>Community News Feed</h2>
+    <div class="row">
+        <!-- Hardcoded News Feed -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <img src="{{ url_for('static', filename='images/news1.jpg') }}" class="card-img-top" alt="News image">
+                <div class="card-body">
+                    <h5 class="card-title">Neighborhood Cleanup</h5>
+                    <p class="card-text">Join us this Saturday for a community cleanup. Help keep our neighborhood clean and green!</p>
+                    <a href="#" class="btn btn-outline-primary">Read More</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <img src="{{ url_for('static', filename='images/news2.jpg') }}" class="card-img-top" alt="News image">
+                <div class="card-body">
+                    <h5 class="card-title">Local Farmers Market</h5>
+                    <p class="card-text">Don't miss the weekly farmers market on Sunday. Fresh produce and handmade goods await!</p>
+                    <a href="#" class="btn btn-outline-primary">Read More</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <img src="{{ url_for('static', filename='images/news3.jpg') }}" class="card-img-top" alt="News image">
+                <div class="card-body">
+                    <h5 class="card-title">Book Club Meeting</h5>
+                    <p class="card-text">Join our monthly book club discussion. This month we’re reading "To Kill a Mockingbird".</p>
+                    <a href="#" class="btn btn-outline-primary">Read More</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add New Section -->
+    <div class="mt-5">
+        <h2>Contribute to the Community</h2>
+        <p>Have something to share with the community? Add your own resources or events!</p>
+        <a class="btn btn-success" href="{{ url_for('add_resource') }}">List a Resource</a>
+        <a class="btn btn-info" href="{{ url_for('create_community') }}">Create a Community Event</a>
+    </div>
+</div>
+{% endblock %}
