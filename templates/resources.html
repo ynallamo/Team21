@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Resources{% endblock %}
+
+{% block content %}
+<h1>Resources</h1>
+
+<!-- Search form for filtering resources -->
+<form method="get" action="/resources">
+    <input type="text" name="search" placeholder="Search resources by title or category" value="{{ request.args.get('search', '') }}" class="form-control mb-3">
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
+<!-- Resource listing section -->
+<div class="row">
+    {% for resource in resources %}
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <img src="{{ resource['images'] }}" class="card-img-top" alt="Resource image">
+            <div class="card-body">
+                <h5 class="card-title">{{ resource['title'] }}</h5>
+                <p class="card-text">{{ resource['description'] }}</p>
+                <p>Category: {{ resource['category'] }}</p>
+                <p>Availability: {{ resource['availability'] }}</p>
+                <p>Date Posted: {{ resource['date_posted'] }}</p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

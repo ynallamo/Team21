@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Community Events{% endblock %}
+
+{% block content %}
+<h1>Community Events</h1>
+
+<!-- Search form for filtering events -->
+<form method="get" action="/community_events">
+    <input type="text" name="search" placeholder="Search events by title or category" value="{{ request.args.get('search', '') }}" class="form-control mb-3">
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
+<!-- Event listing section -->
+<div class="row">
+    {% for event in community_entries %}
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <img src="{{ event['images'] }}" class="card-img-top" alt="Event image">
+            <div class="card-body">
+                <h5 class="card-title">{{ event['title'] }}</h5>
+                <p class="card-text">{{ event['description'] }}</p>
+                <p>Category: {{ event['category'] }}</p>
+                <p>Location: {{ event['location'] }}</p>
+                <p>Date: {{ event['date_posted'] }}</p>
+                <p>Availability: {{ event['availability'] }}</p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

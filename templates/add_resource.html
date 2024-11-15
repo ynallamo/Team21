@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Resource</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Add New Resource</h1>
+    <form method="post" action="{{ url_for('add_resource') }}">
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" required>
+        
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" required></textarea>
+        
+        <label for="category">Category:</label>
+        <input type="text" id="category" name="category" required>
+        
+        <label for="availability">Availability:</label>
+        <select id="availability" name="availability" required>
+            <option value="available">Available</option>
+            <option value="reserved">Reserved</option>
+        </select>
+        
+        <label for="date_posted">Date Posted:</label>
+        <input type="date" id="date_posted" name="date_posted" required>
+        
+        <label for="user_id">User ID:</label>
+        <input type="number" id="user_id" name="user_id" required>
+        
+        <button type="submit">Add Resource</button>
+    </form>
+</body>
+</html>
+

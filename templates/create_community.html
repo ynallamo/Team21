@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Add Community Event{% endblock %}
+
+{% block content %}
+<h1>Add Community Event</h1>
+<form method="POST" action="{{ url_for('create_community') }}" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="title">Event Title</label>
+        <input type="text" class="form-control" id="title" name="title" placeholder="Enter event title" required>
+    </div>
+    
+    <div class="form-group">
+        <label for="description">Description</label>
+        <textarea class="form-control" id="description" name="description" rows="3" placeholder="Enter event description" required></textarea>
+    </div>
+
+    <div class="form-group">
+        <label for="category">Category</label>
+        <input type="text" class="form-control" id="category" name="category" placeholder="Enter event category" required>
+    </div>
+
+    <div class="form-group">
+        <label for="location">Location</label>
+        <input type="text" class="form-control" id="location" name="location" placeholder="Enter location of the event" required>
+    </div>
+
+    <div class="form-group">
+        <label for="availability">Availability</label>
+        <input type="text" class="form-control" id="availability" name="availability" placeholder="Enter availability status" required>
+    </div>
+
+    <div class="form-group">
+        <label for="images">Event Image</label>
+        <input type="file" class="form-control-file" id="images" name="images">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create Event</button>
+</form>
+{% endblock %}

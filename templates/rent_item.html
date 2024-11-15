@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Rent an Item{% endblock %}
+
+{% block content %}
+<h1>Rent an Item</h1>
+
+<!-- Selection box to choose between viewing resources or community spaces -->
+<div class="form-group">
+    <label for="rentType">Choose an item type to rent:</label>
+    <select class="form-control" id="rentType" onchange="showAvailableItems()">
+        <option value="">-- Select an Option --</option>
+        <option value="resource">Resources</option>
+        <option value="community">Community Spaces</option>
+    </select>
+</div>
+
+<!-- Container for displaying available resources -->
+<div id="resourcesList" style="display: none;">
+    <h3>Available Resources</h3>
+    <div class="row">
+        {% for resource in resources %}
+        <div class="col-md-4 mb-4">
+            <!-- Card for each resource, with a clickable link to the item details page -->
+            <div class="card" onclick="location.href='{{ url_for('item_details', item_id=resource['resource_id']) }}'" style="cursor: pointer;">
+                <!-- Check if 'images' exists; if not, use 'images/default.jpg' as fallback -->
+                <img src="{{ url_for('static', filename=resource['images'] if resource['images'] else 'images/default.jpg') }}" class="card-img-top" alt="Resource image">
+                <div class="card-body">
+                    <h5 class="card-title">{{ resource['title'] }}</h5>
+                    <p class="card-text">{{ resource['description'] }}</p>
+                    <p>Category: {{ resource['category'] }}</p>
+                    <p>Availability: {{ resource['availability'] }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Container for displaying available community spaces -->
+<div id="communityList" style="display: none;">
+    <h3>Available Community Spaces</h3>
+    <div class="row">
+        {% for community in community_spaces %}
+        <div class="col-md-4 mb-4">
+            <!-- Card for each community space, with a clickable link to the item details page -->
+            <div class="card" onclick="location.href='{{ url_for('item_details', item_id=community['community_id']) }}'" style="cursor: pointer;">
+                <!-- Check if 'images' exists; if not, use 'images/default.jpg' as fallback -->
+                <img src="{{ url_for('static', filename=community['images'] if community['images'] else 'images/default.jpg') }}" class="card-img-top" alt="Community space image">
+                <div class="card-body">
+                    <h5 class="card-title">{{ community['title'] }}</h5>
+                    <p class="card-text">{{ community['description'] }}</p>
+                    <p>Location: {{ community['location'] }}</p>
+                    <p>Availability: {{ community['availability'] }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- JavaScript to toggle between resource and community lists -->
+<script>
+    function showAvailableItems() {
+        const rentType = document.getElementById("rentType").value;
+        const resourcesList = document.getElementById("resourcesList");
+        const communityList = document.getElementById("communityList");
+
+        // Hide both lists initially
+        resourcesList.style.display = "none";
+        communityList.style.display = "none";
+
+        // Show the selected list
+        if (rentType === "resource") {
+            resourcesList.style.display = "block";
+        } else if (rentType === "community") {
+            communityList.style.display = "block";
+        }
+    }
+</script>
+{% endblock %}
