@@ -408,9 +408,99 @@ def fetch_reserved_dates(item_id):
 
     return jsonify([{"start": row["start_date"], "end": row["end_date"]} for row in reserved_dates])
 
+@app.route('/messages', methods=['GET'])
+def messages():
+    if 'user_id' not in session:
+        flash("Please log in to view your messages.", "error")
+        return redirect(url_for('login'))
+    logged_in_user_id = session['user_id']
+    conn = get_db_connection()
+    # Fetch conversations with last message
+    conversations = conn.execute('''
+        SELECT u.user_id, u.name,
+               (SELECT content FROM Messages m
+                WHERE (m.sender_id = u.user_id AND m.receiver_id = ?)
+                   OR (m.receiver_id = u.user_id AND m.sender_id = ?)
+                ORDER BY timestamp DESC
+                LIMIT 1) as last_message
+        FROM Users u
+        JOIN Messages m
+          ON (u.user_id = m.sender_id AND m.receiver_id = ?)
+          OR (u.user_id = m.receiver_id AND m.sender_id = ?)
+        WHERE u.user_id != ?
+        GROUP BY u.user_id, u.name
+    ''', (logged_in_user_id, logged_in_user_id, logged_in_user_id, logged_in_user_id, logged_in_user_id)).fetchall()
+    conn.close()
+    # Transform conversations to list of dicts
+    conversations = [{'user_id': conv['user_id'], 'name': conv['name'], 'last_message': conv['last_message']} for conv in conversations]
+    return render_template('messages.html', conversations=conversations, recipient=None, messages=[])
 
 
+@app.route('/start_conversation', methods=['GET', 'POST'])
+def start_conversation():
+    if 'user_id' not in session:
+        flash("Please log in to start a conversation.", "error")
+        return redirect(url_for('login'))
+    logged_in_user_id = session['user_id']
+    conn = get_db_connection()
+    # Fetch all users except the logged-in user
+    users = conn.execute('''
+        SELECT user_id, name
+        FROM Users
+        WHERE user_id != ?
+    ''', (logged_in_user_id,)).fetchall()
+    conn.close()
+    if request.method == 'POST':
+        selected_user_id = request.form['selected_user']
+        return redirect(url_for('chat', user_id=selected_user_id))
+    return render_template('start_conversation.html', users=users)
+@app.route('/chat/<int:user_id>', methods=['GET', 'POST'])
+def chat(user_id):
+    if 'user_id' not in session:
+        flash("Please log in to chat.", "error")
+        return redirect(url_for('login'))
+    logged_in_user_id = session['user_id']
+    conn = get_db_connection()
+    # Handle sending a message
+    if request.method == 'POST':
+        content = request.form['message_content']
+        timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        conn.execute('''
+            INSERT INTO Messages (sender_id, receiver_id, content, timestamp)
+            VALUES (?, ?, ?, ?)
+        ''', (logged_in_user_id, user_id, content, timestamp))
+        conn.commit()
+        flash("Message sent successfully!", "success")
+    # Fetch all messages between the logged-in user and the selected user
+    messages = conn.execute('''
+        SELECT *
+        FROM Messages
+        WHERE (sender_id = ? AND receiver_id = ?)
+           OR (sender_id = ? AND receiver_id = ?)
+        ORDER BY timestamp ASC
+    ''', (logged_in_user_id, user_id, user_id, logged_in_user_id)).fetchall()
+    # Fetch the recipient's details
+    recipient = conn.execute('SELECT * FROM Users WHERE user_id = ?', (user_id,)).fetchone()
+    # Fetch conversations with last message
+    conversations = conn.execute('''
+        SELECT u.user_id, u.name,
+               (SELECT content FROM Messages m
+                WHERE (m.sender_id = u.user_id AND m.receiver_id = ?)
+                   OR (m.receiver_id = u.user_id AND m.sender_id = ?)
+                ORDER BY timestamp DESC
+                LIMIT 1) as last_message
+        FROM Users u
+        JOIN Messages m
+          ON (u.user_id = m.sender_id AND m.receiver_id = ?)
+          OR (u.user_id = m.receiver_id AND m.sender_id = ?)
+        WHERE u.user_id != ?
+        GROUP BY u.user_id, u.name
+    ''', (logged_in_user_id, logged_in_user_id, logged_in_user_id, logged_in_user_id, logged_in_user_id)).fetchall()
+    conn.close()
+    # Transform conversations to list of dicts
+    conversations = [{'user_id': conv['user_id'], 'name': conv['name'], 'last_message': conv['last_message']} for conv in conversations]
 
+    return render_template('messages.html', conversations=conversations, recipient=recipient, messages=messages)
 
 
 if __name__ == '__main__':
