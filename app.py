@@ -37,16 +37,26 @@ def signup():
     if request.method == 'POST':
         name = request.form['name']
         email = request.form['email']
-        password = request.form['password']  # Get the password from the form
+        password = request.form['password']
 
-        # Hash the password using SHA-256
+        # Hash the password
         hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
 
+        # Handle profile image
+        profile_image = None
+        if 'profile_image' in request.files:
+            image_file = request.files['profile_image']
+            if image_file and allowed_file(image_file.filename):
+                filename = secure_filename(image_file.filename)
+                profile_image = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                image_file.save(profile_image)
+
+        # Insert data into the database
         conn = get_db_connection()
         try:
             conn.execute(
-                'INSERT INTO Users (name, email, password) VALUES (?, ?, ?)',
-                (name, email, hashed_password)  # Store the hashed password
+                'INSERT INTO Users (name, email, password, profile_image) VALUES (?, ?, ?, ?)',
+                (name, email, hashed_password, profile_image)
             )
             conn.commit()
             flash("Signup successful! You can now log in.", "success")
@@ -57,7 +67,6 @@ def signup():
             conn.close()
 
     return render_template('signup.html')
-
 
 # Route for user login
 @app.route('/')
@@ -608,6 +617,7 @@ def submit_review(owner_id):
 
     return redirect(request.referrer)  # Redirect back to the item details page
 
+
 @app.route('/profile', methods=['GET'])
 def profile():
     if 'user_id' not in session:
@@ -616,8 +626,6 @@ def profile():
 
     user_id = session['user_id']
     conn = get_db_connection()
-
-    # Fetch the current user's information
     user = conn.execute('SELECT * FROM Users WHERE user_id = ?', (user_id,)).fetchone()
     conn.close()
 

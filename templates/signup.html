@@ -12,29 +12,69 @@
             font-size: 0.9rem;
             margin-top: 0.25rem;
         }
+        .profile-picture-container {
+            display: flex;
+            justify-content: flex-start; /* Align to the left */
+            align-items: flex-start;
+            margin-top: 20px;
+        }
+        .profile-picture {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: #f0f0f0;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            color: #6c757d;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        .profile-picture input[type="file"] {
+            display: none; /* Hide the file input */
+        }
+        .profile-picture span {
+            position: absolute;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
     <div class="container mt-5">
         <h2 class="text-center">Sign Up</h2>
-        <form method="POST" action="{{ url_for('signup') }}" id="signupForm">
+        <form method="POST" action="{{ url_for('signup') }}" enctype="multipart/form-data">
             <div class="form-group">
                 <label for="name">Name</label>
                 <input type="text" class="form-control" id="name" name="name" required>
-                <div class="error-message" id="nameError"></div>
             </div>
             <div class="form-group">
                 <label for="email">Email</label>
                 <input type="email" class="form-control" id="email" name="email" required>
-                <div class="error-message" id="emailError"></div>
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
                 <input type="password" class="form-control" id="password" name="password" required>
-                <div class="error-message" id="passwordError"></div>
             </div>
-            <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
+            <div class="form-group">
+                <label for="location">Location</label>
+                <input type="text" class="form-control" id="location" name="location" required>
+            </div>
+
+            <!-- Profile Picture Upload Section -->
+            <div class="profile-picture-container">
+                <div class="profile-picture" id="profilePicture" style="background-image: url('{{ url_for('static', filename='images/default-avatar.png') }}');">
+                    <input type="file" id="profileImage" name="profile_image" accept="image/*" onchange="previewImage(event)">
+                    <span id="profileText">Add Profile Picture</span>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Sign Up</button>
         </form>
+        
 
         <div class="mt-3 text-center">
             <p>Already have an account?</p>
@@ -53,35 +93,19 @@
     </div>
 
     <script>
-        document.getElementById('signupForm').addEventListener('submit', function (event) {
-            let isValid = true;
-
-            // Clear previous error messages
-            document.getElementById('emailError').textContent = '';
-            document.getElementById('passwordError').textContent = '';
-
-            const emailInput = document.getElementById('email').value;
-            const passwordInput = document.getElementById('password').value;
-
-            // Regex to validate email format
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(emailInput)) {
-                document.getElementById('emailError').textContent = "Please enter a valid email address.";
-                isValid = false;
+        // Function to preview the uploaded profile picture and hide the "Add Profile Picture" text
+        function previewImage(event) {
+            const file = event.target.files[0];
+            const profileText = document.getElementById('profileText');
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('profilePicture').style.backgroundImage = `url(${e.target.result})`;
+                    profileText.style.display = 'none'; // Hide the text once an image is selected
+                };
+                reader.readAsDataURL(file);
             }
-
-            // Check password length
-            if (passwordInput.length < 8) {
-                document.getElementById('passwordError').textContent = "Password must be at least 8 characters long.";
-                isValid = false;
-            }
-
-            // Prevent form submission if not valid
-            if (!isValid) {
-                event.preventDefault();
-            }
-        });
+        }
     </script>
 </body>
 </html>
-

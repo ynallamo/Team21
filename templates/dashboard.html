@@ -6,6 +6,8 @@
 <div class="container mt-5">
     <!-- Welcome Section -->
     <div class="jumbotron">
+    <!-- Welcome Section with 90% faded white background image -->
+    <div class="jumbotron" style="position: relative; background-image: url('{{ url_for('static', filename='images/nei.jpg') }}'); background-size: cover; background-position: center; background-blend-mode: overlay; background-color: rgba(255, 255, 255, 0.6);">
         <h1 class="display-4">Welcome{{ ' ' + session['user_name'] if session.get('user_name') else '' }}!</h1>
         <p class="lead">This is your community dashboard. Stay updated with the latest news and events!</p>
         <hr class="my-4">
@@ -15,9 +17,9 @@
 
     <!-- News Feed Section -->
     <h2>Community News Feed</h2>
-    <div class="row">
-        <!-- Hardcoded News Feed -->
-        <div class="col-md-4 mb-4">
+    <div class="row d-flex justify-content-between" style="flex-wrap: nowrap; gap: 1rem;">
+        <!-- Hardcoded News Feed - Each card is assigned flex properties to prevent wrapping -->
+        <div class="col-md-4 mb-3 d-flex flex-fill">
             <div class="card h-100">
                 <img src="{{ url_for('static', filename='images/news1.png') }}" class="card-img-top" alt="News image">
                 <div class="card-body">
@@ -27,7 +29,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-4">
+        <div class="col-md-4 mb-3 d-flex flex-fill">
             <div class="card h-100">
                 <img src="{{ url_for('static', filename='images/news2.jpg') }}" class="card-img-top" alt="News image">
                 <div class="card-body">
@@ -37,7 +39,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-4">
+        <div class="col-md-4 mb-3 d-flex flex-fill">
             <div class="card h-100">
                 <img src="{{ url_for('static', filename='images/news3.jpg') }}" class="card-img-top" alt="News image">
                 <div class="card-body">
