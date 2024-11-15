@@ -8,15 +8,15 @@
 <!-- Selection box to choose between listing a resource or community event -->
 <div class="form-group">
     <label for="itemType">Choose an item type to list:</label>
-    <select class="form-control" id="itemType" onchange="toggleForm()">
-        <option value="">-- Select an Option --</option>
+    <select class="form-control" id="itemType" onchange="toggleForm()" required>
+        <option value="" disabled selected>-- Select an Option --</option>
         <option value="resource">Resource</option>
         <option value="community">Community Event/Space</option>
     </select>
 </div>
 
 <!-- Resource Form -->
-<form id="resourceForm" method="POST" action="{{ url_for('add_resource') }}" enctype="multipart/form-data" style="display: none;">
+<form id="resourceForm" method="POST" action="{{ url_for('add_resource') }}" enctype="multipart/form-data" style="display: none;" onsubmit="return validateForm('resourceForm')">
     <h3>List a Resource</h3>
     <div class="form-group">
         <label for="title">Title</label>
@@ -28,11 +28,23 @@
     </div>
     <div class="form-group">
         <label for="category">Category</label>
-        <input type="text" class="form-control" id="category" name="category" placeholder="Enter category" required>
+        <select class="form-control" id="category" name="category" required>
+            <option value="" disabled selected>-- Select Category --</option>
+            <option value="Tools">Tools</option>
+            <option value="Books">Books</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Furniture">Furniture</option>
+            <option value="Other">Other</option>
+        </select>
     </div>
     <div class="form-group">
         <label for="availability">Availability</label>
-        <input type="text" class="form-control" id="availability" name="availability" placeholder="Enter availability status" required>
+        <select class="form-control" id="availability" name="availability" required>
+            <option value="" disabled selected>-- Select Availability --</option>
+            <option value="Available">Available</option>
+            <option value="Not Available">Not Available</option>
+            <option value="Limited Availability">Limited Availability</option>
+        </select>
     </div>
     <div class="form-group">
         <label for="date_posted">Date Posted</label>
@@ -44,13 +56,13 @@
     </div>
     <div class="form-group">
         <label for="images">Resource Image</label>
-        <input type="file" class="form-control-file" id="images" name="images">
+        <input type="file" class="form-control-file" id="images" name="images" required>
     </div>
     <button type="submit" class="btn btn-primary">Submit Resource</button>
 </form>
 
 <!-- Community Event/Space Form -->
-<form id="communityForm" method="POST" action="{{ url_for('create_community') }}" enctype="multipart/form-data" style="display: none;">
+<form id="communityForm" method="POST" action="{{ url_for('create_community') }}" enctype="multipart/form-data" style="display: none;" onsubmit="return validateForm('communityForm')">
     <h3>List a Community Event/Space</h3>
     <div class="form-group">
         <label for="title">Title</label>
@@ -66,7 +78,12 @@
     </div>
     <div class="form-group">
         <label for="availability">Availability</label>
-        <input type="text" class="form-control" id="availability" name="availability" placeholder="Enter availability status" required>
+        <select class="form-control" id="availability" name="availability" required>
+            <option value="" disabled selected>-- Select Availability --</option>
+            <option value="Available">Available</option>
+            <option value="Not Available">Not Available</option>
+            <option value="Limited Availability">Limited Availability</option>
+        </select>
     </div>
     <div class="form-group">
         <label for="user_id">User ID</label>
@@ -74,12 +91,12 @@
     </div>
     <div class="form-group">
         <label for="images">Event Image</label>
-        <input type="file" class="form-control-file" id="images" name="images">
+        <input type="file" class="form-control-file" id="images" name="images" required>
     </div>
     <button type="submit" class="btn btn-primary">Submit Community Event/Space</button>
 </form>
 
-<!-- JavaScript to toggle between forms -->
+<!-- JavaScript to toggle between forms and validate fields -->
 <script>
     function toggleForm() {
         const itemType = document.getElementById("itemType").value;
@@ -96,6 +113,19 @@
         } else if (itemType === "community") {
             communityForm.style.display = "block";
         }
+    }
+
+    function validateForm(formId) {
+        const form = document.getElementById(formId);
+        const imageInput = form.querySelector('input[type="file"]');
+        
+        // Ensure an image has been uploaded
+        if (!imageInput.files || imageInput.files.length === 0) {
+            alert("Please upload an image.");
+            return false;
+        }
+
+        return true;
     }
 </script>
 {% endblock %}
