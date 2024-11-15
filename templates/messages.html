@@ -2,9 +2,9 @@
 {% block title %}Messages{% endblock %}
 {% block content %}
 <div class="container-fluid mt-4">
-    <div class="row">
+    <div class="row" style="height: 80vh;">
         <!-- Left Sidebar: Conversations and Start Conversation Button -->
-        <div class="col-md-4" style="border-right: 1px solid #ddd; max-height: 600px; overflow-y: auto;">
+        <div class="col-md-4 d-flex flex-column" style="border-right: 1px solid #ddd; overflow-y: auto;">
             <h5 class="mb-3">Messages</h5>
             <!-- Start Conversation Button -->
             <div class="mb-3">
@@ -25,8 +25,9 @@
                 {% endfor %}
             </ul>
         </div>
+
         <!-- Main Chat Window -->
-        <div class="col-md-8 d-flex flex-column" style="max-height: 600px;">
+        <div class="col-md-8 d-flex flex-column" style="overflow-y: auto;">
             {% if recipient %}
                 <!-- Chat Header -->
                 <div class="d-flex align-items-center p-3 border-bottom bg-white">
