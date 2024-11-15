@@ -4,7 +4,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 import sqlite3
 from werkzeug.utils import secure_filename
 from math import ceil
-
+import hashlib 
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Needed for session management
@@ -29,18 +29,24 @@ def get_db_connection():
     return conn
 
 # Route for user signup
+ # Use hashlib for hashing passwords
+
+# Route for user signup
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
         name = request.form['name']
         email = request.form['email']
-        password = request.form['password']  # Store as plain text temporarily
+        password = request.form['password']  # Get the password from the form
+
+        # Hash the password using SHA-256
+        hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
 
         conn = get_db_connection()
         try:
             conn.execute(
                 'INSERT INTO Users (name, email, password) VALUES (?, ?, ?)',
-                (name, email, password)
+                (name, email, hashed_password)  # Store the hashed password
             )
             conn.commit()
             flash("Signup successful! You can now log in.", "success")
@@ -51,6 +57,7 @@ def signup():
             conn.close()
 
     return render_template('signup.html')
+
 
 # Route for user login
 @app.route('/')
