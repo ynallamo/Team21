@@ -19,24 +19,20 @@
     <!-- Container for displaying available resources -->
     <div id="resourcesList" style="display: none;">
         <h3 class="text-primary mb-4">Available Resources</h3>
-        <div class="row">
+        <div class="row row-cols-1 row-cols-md-3 g-4">
             {% for resource in resources %}
-            <div class="col-md-6 col-lg-4 mb-4">
-                <!-- Card for each resource -->
-                <div class="card shadow-sm border-0 h-100" onclick="location.href='{{ url_for('item_details', item_id=resource['resource_id']) }}'" style="cursor: pointer;">
-                    <!-- Check if 'images' exists; if not, use 'images/default.jpg' as fallback -->
+            <div class="col">
+                <div class="card shadow-sm h-100" onclick="location.href='{{ url_for('item_details', item_id=resource['resource_id']) }}'" style="cursor: pointer;">
                     <img src="{{ url_for('static', filename=resource['images'] if resource['images'] else 'images/default.jpg') }}" class="card-img-top" alt="Resource image" style="height: 200px; object-fit: cover;">
                     <div class="card-body">
                         <h6 class="card-title text-primary">{{ resource['title'] }}</h6>
                         <p class="card-text text-muted small">{{ resource['description'] }}</p>
-                        <p class="mb-1">
-                            <strong>Category:</strong> {{ resource['category'] }}
-                        </p>
+                        <p><strong>Category:</strong> {{ resource['category'] }}</p>
                         <p>
                             {% if resource['availability'] == 'unavailable' %}
-                                <span class="badge badge-danger">Currently Reserved</span>
+                                <span class="badge bg-danger">Currently Reserved</span>
                             {% else %}
-                                <span class="badge badge-success">Available</span>
+                                <span class="badge bg-success">Available</span>
                             {% endif %}
                         </p>
                     </div>
@@ -73,24 +69,20 @@
     <!-- Container for displaying available community spaces -->
     <div id="communityList" style="display: none;">
         <h3 class="text-primary mb-4">Available Community Spaces</h3>
-        <div class="row">
+        <div class="row row-cols-1 row-cols-md-3 g-4">
             {% for community in community_spaces %}
-            <div class="col-md-6 col-lg-4 mb-4">
-                <!-- Card for each community space -->
-                <div class="card shadow-sm border-0 h-100" onclick="location.href='{{ url_for('item_details', item_id=community['community_id']) }}'" style="cursor: pointer;">
-                    <!-- Check if 'images' exists; if not, use 'images/default.jpg' as fallback -->
+            <div class="col">
+                <div class="card shadow-sm h-100" onclick="location.href='{{ url_for('item_details', item_id=community['community_id']) }}'" style="cursor: pointer;">
                     <img src="{{ url_for('static', filename=community['images'] if community['images'] else 'images/default.jpg') }}" class="card-img-top" alt="Community space image" style="height: 200px; object-fit: cover;">
                     <div class="card-body">
                         <h6 class="card-title text-primary">{{ community['title'] }}</h6>
                         <p class="card-text text-muted small">{{ community['description'] }}</p>
-                        <p class="mb-1">
-                            <strong>Location:</strong> {{ community['location'] }}
-                        </p>
+                        <p><strong>Location:</strong> {{ community['location'] }}</p>
                         <p>
                             {% if community['availability'] == 'unavailable' %}
-                                <span class="badge badge-danger">Currently Reserved</span>
+                                <span class="badge bg-danger">Currently Reserved</span>
                             {% else %}
-                                <span class="badge badge-success">Available</span>
+                                <span class="badge bg-success">Available</span>
                             {% endif %}
                         </p>
                     </div>

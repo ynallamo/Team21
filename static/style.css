@@ -8,6 +8,7 @@ body {
 
 h1, h2 {
     color: #333; /* Unified heading color */
+    font-weight: 600;
 }
 
 a {
@@ -25,6 +26,7 @@ button {
     border: none;
     cursor: pointer;
     border-radius: 4px; /* Rounded corners for modern look */
+    transition: background-color 0.3s ease-in-out;
 }
 
 button:hover {
@@ -38,10 +40,11 @@ form {
 input[type="text"], textarea, select, input[type="date"], input[type="number"] {
     display: block;
     width: 100%;
-    padding: 8px;
-    margin-bottom: 10px;
+    padding: 10px;
+    margin-bottom: 15px;
     border: 1px solid #ccc;
     border-radius: 4px; /* Match form input styles to buttons */
+    background-color: #fff;
 }
 
 /* Card Styles */
@@ -49,18 +52,27 @@ input[type="text"], textarea, select, input[type="date"], input[type="number"] {
     border: 1px solid #ddd;
     border-radius: 8px; /* Rounded corners for cards */
     overflow: hidden; /* Ensure child elements are contained */
-    margin: 10px;
+    margin: 10px 0;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    background-color: #fff;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 }
 
-.card h5 {
-    font-size: 1.25rem;
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card h5, .card h6 {
+    font-size: 1.2rem;
     margin: 10px 0;
+    font-weight: bold;
 }
 
 .card p {
     font-size: 0.95rem;
     color: #555;
+    margin-bottom: 8px;
 }
 
 .card a {
@@ -78,23 +90,31 @@ input[type="text"], textarea, select, input[type="date"], input[type="number"] {
     height: 200px; /* Fixed height for uniformity */
     object-fit: cover; /* Maintain aspect ratio and crop as needed */
     border-bottom: 1px solid #ddd;
+    border-radius: 8px 8px 0 0; /* Top rounded corners only */
 }
 
 /* Resource Section */
 .resource-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 20px;
     justify-content: space-between;
+    margin: 0 -15px;
 }
 
 .resource-card {
     border: 1px solid #ddd;
     border-radius: 8px;
-    padding: 10px;
-    width: calc(33.333% - 20px);
+    padding: 15px;
+    width: calc(33.333% - 30px);
     background-color: white;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin: 15px;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.resource-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 .resource-card img {
@@ -102,6 +122,25 @@ input[type="text"], textarea, select, input[type="date"], input[type="number"] {
     height: 150px; /* Consistent height for images */
     object-fit: cover;
     border-bottom: 1px solid #ddd;
+    border-radius: 8px 8px 0 0; /* Top rounded corners only */
+}
+
+.resource-card .card-title {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #007bff;
+    margin: 10px 0 5px;
+}
+
+.resource-card .card-text {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.resource-card .badge {
+    font-size: 0.8rem;
+    padding: 5px 10px;
 }
 
 /* Utility Classes */
@@ -111,6 +150,18 @@ input[type="text"], textarea, select, input[type="date"], input[type="number"] {
 
 .mb-4 {
     margin-bottom: 1.5rem;
+}
+
+.text-primary {
+    color: #007bff !important;
+}
+
+.text-success {
+    color: #28a745 !important;
+}
+
+.text-danger {
+    color: #dc3545 !important;
 }
 
 .jumbotron {
@@ -128,9 +179,30 @@ input[type="text"], textarea, select, input[type="date"], input[type="number"] {
 .row {
     display: flex;
     flex-wrap: wrap;
-    gap: 20px;
+    justify-content: space-between;
+    margin: 0 -15px;
 }
 
 .col-md-4 {
-    flex: 1 1 calc(33.333% - 20px);
+    flex: 0 0 calc(33.333% - 30px);
+    max-width: calc(33.333% - 30px);
+    margin: 15px;
+    box-sizing: border-box;
+}
+
+.pagination {
+    margin-top: 20px;
+}
+
+.pagination .page-item .page-link {
+    color: #007bff;
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    border-radius: 4px;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #007bff;
+    color: #fff;
+    border: 1px solid #007bff;
 }
