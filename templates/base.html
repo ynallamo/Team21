@@ -16,7 +16,8 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
+            <!-- Centered Navigation Links -->
+            <ul class="navbar-nav mx-auto">
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
                 </li>
@@ -32,6 +33,10 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('reserved_items') }}">Reserved Items</a>
                 </li>
+            </ul>
+            
+            <!-- Right-aligned Logout Link -->
+            <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
                 </li>
