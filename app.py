@@ -65,21 +65,29 @@ def signup():
 def login():
     if request.method == 'POST':
         email = request.form['email']
-        password = request.form['password']
+        password = request.form['password']  # Get the plain-text password from the form
 
         conn = get_db_connection()
-        user = conn.execute('SELECT * FROM Users WHERE email = ? AND password = ?', (email, password)).fetchone()
+        user = conn.execute('SELECT * FROM Users WHERE email = ?', (email,)).fetchone()
         conn.close()
 
         if user:
-            session['user_id'] = user['user_id']
-            session['user_name'] = user['name']
-            flash("Login successful!", "success")
-            return redirect(url_for('dashboard'))  # Redirect to dashboard after login
+            # Hash the input password
+            hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
+
+            # Compare the stored hash with the hashed input
+            if user['password'] == hashed_password:
+                session['user_id'] = user['user_id']
+                session['user_name'] = user['name']
+                flash("Login successful!", "success")
+                return redirect(url_for('dashboard'))
+            else:
+                flash("Invalid email or password.", "error")
         else:
             flash("Invalid email or password.", "error")
 
     return render_template('login.html')
+
 
 # Route for user logout
 @app.route('/logout')
