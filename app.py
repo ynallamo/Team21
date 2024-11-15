@@ -229,6 +229,63 @@ def rent_item():
     conn.close()
     return render_template('rent_item.html', resources=resources, community_spaces=community_spaces)
 
+#update reservation
+@app.route('/update_reservation/<int:reservation_id>', methods=['GET'])
+def update_reservation(reservation_id):
+    if 'user_id' not in session:
+        flash("Please log in to update a reservation.", "error")
+        return redirect(url_for('login'))
+
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+
+    if not start_date or not end_date:
+        flash("Both 'From' and 'To' dates are required to update the reservation.", "error")
+        return redirect(url_for('reserved_items'))
+
+    user_id = session['user_id']
+
+    conn = get_db_connection()
+    try:
+        # Fetch the current reservation to get the item ID
+        reservation = conn.execute("SELECT * FROM Reservations WHERE reservation_id = ?", (reservation_id,)).fetchone()
+        if not reservation or reservation['user_id'] != user_id:
+            flash("Invalid reservation.", "error")
+            return redirect(url_for('reserved_items'))
+
+        item_id = reservation['item_id']
+
+        # Check for conflicting reservations during the updated date range
+        conflicts = conn.execute('''
+            SELECT * FROM Reservations
+            WHERE item_id = ? AND reservation_id != ? AND (
+                (start_date <= ? AND end_date >= ?) OR
+                (start_date <= ? AND end_date >= ?) OR
+                (start_date >= ? AND end_date <= ?)
+            )
+        ''', (item_id, reservation_id, start_date, start_date, end_date, end_date, start_date, end_date)).fetchall()
+
+        if conflicts:
+            flash("The selected dates are unavailable. Please choose a different range.", "error")
+            return redirect(url_for('reserved_items'))
+
+        # Update the reservation dates in the database
+        conn.execute('''
+            UPDATE Reservations
+            SET start_date = ?, end_date = ?
+            WHERE reservation_id = ?
+        ''', (start_date, end_date, reservation_id))
+        conn.commit()
+
+        flash("Reservation updated successfully!", "success")
+    except Exception as e:
+        flash(f"An error occurred while updating the reservation: {e}", "error")
+    finally:
+        conn.close()
+
+    return redirect(url_for('reserved_items'))
+
+
 
 # Route to show details for a specific item
 @app.route('/item/<int:item_id>', methods=['GET'])
