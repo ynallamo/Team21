@@ -551,7 +551,20 @@ def submit_review(owner_id):
 
     return redirect(request.referrer)  # Redirect back to the item details page
 
+@app.route('/profile', methods=['GET'])
+def profile():
+    if 'user_id' not in session:
+        flash("Please log in to access your profile.", "error")
+        return redirect(url_for('login'))
 
+    user_id = session['user_id']
+    conn = get_db_connection()
+
+    # Fetch the current user's information
+    user = conn.execute('SELECT * FROM Users WHERE user_id = ?', (user_id,)).fetchone()
+    conn.close()
+
+    return render_template('profile.html', user=user)
 
 if __name__ == '__main__':
     app.run(debug=True)
