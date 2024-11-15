@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Start Conversation{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3>Start a New Conversation</h3>
+    <form method="POST" action="{{ url_for('start_conversation') }}">
+        <div class="form-group">
+            <label for="selected_user">Select a User:</label>
+            <select class="form-control" id="selected_user" name="selected_user" required>
+                {% for user in users %}
+                    <option value="{{ user['user_id'] }}">{{ user['name'] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Start Conversation</button>
+    </form>
+</div>
+{% endblock %}
