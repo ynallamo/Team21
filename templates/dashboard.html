@@ -15,9 +15,9 @@
 
     <!-- News Feed Section -->
     <h2>Community News Feed</h2>
-    <div class="row">
-        <!-- Hardcoded News Feed -->
-        <div class="col-md-4 mb-4">
+    <div class="row d-flex justify-content-between" style="flex-wrap: nowrap; gap: 1rem;">
+        <!-- Hardcoded News Feed - Each card is assigned flex properties to prevent wrapping -->
+        <div class="col-md-4 mb-3 d-flex flex-fill">
             <div class="card h-100">
                 <img src="{{ url_for('static', filename='images/news1.png') }}" class="card-img-top" alt="News image">
                 <div class="card-body">
@@ -27,7 +27,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-4">
+        <div class="col-md-4 mb-3 d-flex flex-fill">
             <div class="card h-100">
                 <img src="{{ url_for('static', filename='images/news2.jpg') }}" class="card-img-top" alt="News image">
                 <div class="card-body">
@@ -37,7 +37,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-4">
+        <div class="col-md-4 mb-3 d-flex flex-fill">
             <div class="card h-100">
                 <img src="{{ url_for('static', filename='images/news3.jpg') }}" class="card-img-top" alt="News image">
                 <div class="card-body">
