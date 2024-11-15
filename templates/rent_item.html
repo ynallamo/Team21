@@ -8,26 +8,49 @@
 
     <!-- Selection box to choose between viewing resources or community spaces -->
     <div class="form-group mb-5 text-center">
-        <label for="rentType" class="h5">Choose an item type to rent:</label>
-        <select class="form-control w-50 mx-auto" id="rentType" onchange="showAvailableItems()">
+        <label for="rentType" class="h5 mb-3">Choose an item type to rent:</label>
+        <select class="form-select w-50 mx-auto" id="rentType" onchange="showAvailableItems()">
             <option value="">-- Select an Option --</option>
             <option value="resource">Resources</option>
             <option value="community">Community Spaces</option>
         </select>
     </div>
 
+    <!-- Search Bar for Resources -->
+    <div id="resourceSearchBar" style="display: none;" class="mb-4">
+        <div class="input-group w-50 mx-auto shadow-sm">
+            <input type="text" id="searchResourceKeyword" class="form-control" placeholder="Search resources by keywords..." oninput="filterResources()">
+            <select id="searchResourceCategory" class="form-select" onchange="filterResources()">
+                <option value="">All Categories</option>
+                {% for category in resource_categories %}
+                <option value="{{ category }}">{{ category }}</option>
+                {% endfor %}
+            </select>
+            <input type="text" id="searchResourceLocation" class="form-control" placeholder="Search resources by location..." oninput="filterResources()">
+        </div>
+    </div>
+
+    <!-- Search Bar for Community Spaces -->
+    <div id="communitySearchBar" style="display: none;" class="mb-4">
+        <div class="input-group w-50 mx-auto shadow-sm">
+            <input type="text" id="searchCommunityKeyword" class="form-control" placeholder="Search community spaces by keywords..." oninput="filterCommunities()">
+            <input type="text" id="searchCommunityLocation" class="form-control" placeholder="Search community spaces by location..." oninput="filterCommunities()">
+        </div>
+    </div>
+
     <!-- Container for displaying available resources -->
     <div id="resourcesList" style="display: none;">
-        <h3 class="text-primary mb-4">Available Resources</h3>
-        <div class="row row-cols-1 row-cols-md-3 g-4">
+        <h3 class="text-primary mb-4 text-center">Available Resources</h3>
+        <div class="row row-cols-1 row-cols-md-3 g-4" id="resourcesContainer">
             {% for resource in resources %}
-            <div class="col">
-                <div class="card shadow-sm h-100" onclick="location.href='{{ url_for('item_details', item_id=resource['resource_id']) }}'" style="cursor: pointer;">
+            <div class="col resource-card" data-category="{{ resource['category'] }}" data-keywords="{{ resource['title'] }} {{ resource['description'] }}" data-location="{{ resource['location'] }}">
+                <div class="card shadow-sm h-100 border-0" onclick="location.href='{{ url_for('item_details', item_id=resource['resource_id']) }}'" style="cursor: pointer;">
                     <img src="{{ url_for('static', filename=resource['images'] if resource['images'] else 'images/default.jpg') }}" class="card-img-top" alt="Resource image" style="height: 200px; object-fit: cover;">
                     <div class="card-body">
-                        <h6 class="card-title text-primary">{{ resource['title'] }}</h6>
+                        <h6 class="card-title text-primary fw-bold">{{ resource['title'] }}</h6>
                         <p class="card-text text-muted small">{{ resource['description'] }}</p>
                         <p><strong>Category:</strong> {{ resource['category'] }}</p>
+                        <p><strong>Location:</strong> {{ resource['location'] }}</p>
                         <p>
                             {% if resource['availability'] == 'unavailable' %}
                                 <span class="badge bg-danger">Currently Reserved</span>
@@ -40,42 +63,18 @@
             </div>
             {% endfor %}
         </div>
-        <!-- Pagination -->
-        <nav aria-label="Resource pagination" class="mt-4">
-            <ul class="pagination justify-content-center">
-                {% if resources_has_prev %}
-                    <li class="page-item">
-                        <a class="page-link" href="{{ url_for('rent_item', type='resource', page=resources_prev_page) }}" aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
-                        </a>
-                    </li>
-                {% endif %}
-                {% for page in resources_pages %}
-                    <li class="page-item {% if page == resources_current_page %}active{% endif %}">
-                        <a class="page-link" href="{{ url_for('rent_item', type='resource', page=page) }}">{{ page }}</a>
-                    </li>
-                {% endfor %}
-                {% if resources_has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="{{ url_for('rent_item', type='resource', page=resources_next_page) }}" aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
-                    </li>
-                {% endif %}
-            </ul>
-        </nav>
     </div>
 
     <!-- Container for displaying available community spaces -->
     <div id="communityList" style="display: none;">
-        <h3 class="text-primary mb-4">Available Community Spaces</h3>
-        <div class="row row-cols-1 row-cols-md-3 g-4">
+        <h3 class="text-primary mb-4 text-center">Available Community Spaces</h3>
+        <div class="row row-cols-1 row-cols-md-3 g-4" id="communityContainer">
             {% for community in community_spaces %}
-            <div class="col">
-                <div class="card shadow-sm h-100" onclick="location.href='{{ url_for('item_details', item_id=community['community_id']) }}'" style="cursor: pointer;">
+            <div class="col community-card" data-keywords="{{ community['title'] }} {{ community['description'] }}" data-location="{{ community['location'] }}">
+                <div class="card shadow-sm h-100 border-0" onclick="location.href='{{ url_for('item_details', item_id=community['community_id']) }}'" style="cursor: pointer;">
                     <img src="{{ url_for('static', filename=community['images'] if community['images'] else 'images/default.jpg') }}" class="card-img-top" alt="Community space image" style="height: 200px; object-fit: cover;">
                     <div class="card-body">
-                        <h6 class="card-title text-primary">{{ community['title'] }}</h6>
+                        <h6 class="card-title text-primary fw-bold">{{ community['title'] }}</h6>
                         <p class="card-text text-muted small">{{ community['description'] }}</p>
                         <p><strong>Location:</strong> {{ community['location'] }}</p>
                         <p>
@@ -90,50 +89,77 @@
             </div>
             {% endfor %}
         </div>
-        <!-- Pagination -->
-        <nav aria-label="Community pagination" class="mt-4">
-            <ul class="pagination justify-content-center">
-                {% if community_has_prev %}
-                    <li class="page-item">
-                        <a class="page-link" href="{{ url_for('rent_item', type='community', page=community_prev_page) }}" aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
-                        </a>
-                    </li>
-                {% endif %}
-                {% for page in community_pages %}
-                    <li class="page-item {% if page == community_current_page %}active{% endif %}">
-                        <a class="page-link" href="{{ url_for('rent_item', type='community', page=page) }}">{{ page }}</a>
-                    </li>
-                {% endfor %}
-                {% if community_has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="{{ url_for('rent_item', type='community', page=community_next_page) }}" aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
-                    </li>
-                {% endif %}
-            </ul>
-        </nav>
     </div>
 </div>
 
-<!-- JavaScript to toggle between resource and community lists -->
+<!-- JavaScript to toggle between resource and community lists and implement search -->
 <script>
     function showAvailableItems() {
         const rentType = document.getElementById("rentType").value;
         const resourcesList = document.getElementById("resourcesList");
         const communityList = document.getElementById("communityList");
+        const resourceSearchBar = document.getElementById("resourceSearchBar");
+        const communitySearchBar = document.getElementById("communitySearchBar");
 
-        // Hide both lists initially
+        // Hide all lists and search bars initially
         resourcesList.style.display = "none";
         communityList.style.display = "none";
+        resourceSearchBar.style.display = "none";
+        communitySearchBar.style.display = "none";
 
-        // Show the selected list
+        // Show the appropriate list and search bar
         if (rentType === "resource") {
             resourcesList.style.display = "block";
+            resourceSearchBar.style.display = "block";
         } else if (rentType === "community") {
             communityList.style.display = "block";
+            communitySearchBar.style.display = "block";
         }
+    }
+
+    function filterResources() {
+        const keyword = document.getElementById("searchResourceKeyword").value.toLowerCase();
+        const category = document.getElementById("searchResourceCategory").value.toLowerCase();
+        const location = document.getElementById("searchResourceLocation").value.toLowerCase();
+
+        const resourceCards = document.querySelectorAll(".resource-card");
+
+        resourceCards.forEach(card => {
+            const cardCategory = card.getAttribute("data-category").toLowerCase();
+            const cardKeywords = card.getAttribute("data-keywords").toLowerCase();
+            const cardLocation = card.getAttribute("data-location").toLowerCase();
+
+            const matchesKeyword = cardKeywords.includes(keyword);
+            const matchesCategory = category === "" || cardCategory === category;
+            const matchesLocation = cardLocation.includes(location);
+
+            if (matchesKeyword && matchesCategory && matchesLocation) {
+                card.style.display = "block";
+            } else {
+                card.style.display = "none";
+            }
+        });
+    }
+
+    function filterCommunities() {
+        const keyword = document.getElementById("searchCommunityKeyword").value.toLowerCase();
+        const location = document.getElementById("searchCommunityLocation").value.toLowerCase();
+
+        const communityCards = document.querySelectorAll(".community-card");
+
+        communityCards.forEach(card => {
+            const cardKeywords = card.getAttribute("data-keywords").toLowerCase();
+            const cardLocation = card.getAttribute("data-location").toLowerCase();
+
+            const matchesKeyword = cardKeywords.includes(keyword);
+            const matchesLocation = cardLocation.includes(location);
+
+            if (matchesKeyword && matchesLocation) {
+                card.style.display = "block";
+            } else {
+                card.style.display = "none";
+            }
+        });
     }
 </script>
 {% endblock %}

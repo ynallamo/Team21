@@ -15,7 +15,12 @@
                     <h5 class="card-title">{{ item['title'] }}</h5>
                     <p>Reserved From: {{ item['start_date'] }}</p>
                     <p>Reserved To: {{ item['end_date'] }}</p>
-                    <form method="POST" action="{{ url_for('cancel_reservation', reservation_id=item['reservation_id']) }}">
+
+                    <!-- Update Reservation Button -->
+                    <button class="btn btn-primary" onclick="updateReservationPrompt({{ item['reservation_id'] }})">Update Reservation</button>
+
+                    <!-- Cancel Reservation Form -->
+                    <form method="POST" action="{{ url_for('cancel_reservation', reservation_id=item['reservation_id']) }}" class="mt-3">
                         <button type="submit" class="btn btn-danger">Cancel Reservation</button>
                     </form>
                 </div>
@@ -26,4 +31,25 @@
 {% else %}
     <p class="text-muted">You have no reserved items.</p>
 {% endif %}
+
+<script>
+    function updateReservationPrompt(reservationId) {
+        // Prompt the user to enter new dates
+        const startDate = prompt("Enter the new 'From' date (YYYY-MM-DD):");
+        if (!startDate) {
+            alert("Update cancelled. 'From' date is required.");
+            return;
+        }
+
+        const endDate = prompt("Enter the new 'To' date (YYYY-MM-DD):");
+        if (!endDate) {
+            alert("Update cancelled. 'To' date is required.");
+            return;
+        }
+
+        // Redirect to the update reservation route with the new dates
+        const updateUrl = `/update_reservation/${reservationId}?start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}`;
+        window.location.href = updateUrl;
+    }
+</script>
 {% endblock %}
