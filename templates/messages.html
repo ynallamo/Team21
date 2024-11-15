@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Messages{% endblock %}
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Left Sidebar: Conversations and Start Conversation Button -->
+        <div class="col-md-4" style="border-right: 1px solid #ddd; max-height: 600px; overflow-y: auto;">
+            <h5 class="mb-3">Messages</h5>
+            <!-- Start Conversation Button -->
+            <div class="mb-3">
+                <a href="{{ url_for('start_conversation') }}" class="btn btn-primary w-100">Start Conversation</a>
+            </div>
+            <!-- List of Conversations -->
+            <h6>Your Conversations:</h6>
+            <ul class="list-group">
+                {% for conversation in conversations %}
+                    <li class="list-group-item d-flex align-items-center {% if recipient and conversation['user_id'] == recipient['user_id'] %}active{% endif %}">
+                        <a href="{{ url_for('chat', user_id=conversation['user_id']) }}" class="d-flex align-items-center text-decoration-none text-dark w-100">
+                            <div>
+                                <h6 class="mb-0">{{ conversation['name'] }}</h6>
+                                <small class="text-muted">{{ conversation['last_message'] if conversation['last_message'] else "No messages yet" }}</small>
+                            </div>
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <!-- Main Chat Window -->
+        <div class="col-md-8" style="max-height: 600px; display: flex; flex-direction: column;">
+            {% if recipient %}
+                <!-- Chat Header -->
+                <div class="d-flex align-items-center p-3 border-bottom">
+                    <h5 class="mb-0">{{ recipient['name'] }}</h5>
+                </div>
+                <!-- Chat Messages -->
+                <div class="flex-grow-1" style="overflow-y: auto; padding: 20px; background-color: #f8f9fa;">
+                    {% for message in messages %}
+                        {% if message['sender_id'] == session['user_id'] %}
+                            <!-- Outgoing Message -->
+                            <div class="text-end mb-3">
+                                <div class="d-inline-block p-2 rounded text-white bg-primary">
+                                    {{ message['content'] }}
+                                </div>
+                                <br>
+                                <small class="text-muted">{{ message['timestamp'] }}</small>
+                            </div>
+                        {% else %}
+                            <!-- Incoming Message -->
+                            <div class="text-start mb-3">
+                                <div class="d-inline-block p-2 rounded bg-light">
+                                    {{ message['content'] }}
+                                </div>
+                                <br>
+                                <small class="text-muted">{{ message['timestamp'] }}</small>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <!-- Message Input -->
+                <form method="POST" action="{{ url_for('chat', user_id=recipient['user_id']) }}" class="p-3 border-top">
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="message_content" placeholder="Write a message..." required>
+                        <button type="submit" class="btn btn-primary">Send</button>
+                    </div>
+                </form>
+            {% else %}
+                <!-- Placeholder for no active chat -->
+                <div class="d-flex align-items-center justify-content-center h-100">
+                    <h5>Select a user to start chatting.</h5>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
