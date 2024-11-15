@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center">Your Profile</h2>
+    <div class="card shadow-sm mt-4">
+        <div class="card-body">
+            {% if user['profile_image'] %}
+                <div class="text-center">
+                    <img src="{{ url_for('static', filename=user['profile_image']) }}" alt="Profile Image" class="img-thumbnail mb-3" style="max-width: 150px;">
+                </div>
+            {% endif %}
+            <p><strong>Name:</strong> {{ user['name'] }}</p>
+            <p><strong>Email:</strong> {{ user['email'] }}</p>
+            <p><strong>Location:</strong> {{ user['location'] if user['location'] else "Not Provided" }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -4,7 +4,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 import sqlite3
 from werkzeug.utils import secure_filename
 from math import ceil
-
+import hashlib 
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Needed for session management
@@ -29,18 +29,24 @@ def get_db_connection():
     return conn
 
 # Route for user signup
+ # Use hashlib for hashing passwords
+
+# Route for user signup
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
         name = request.form['name']
         email = request.form['email']
-        password = request.form['password']  # Store as plain text temporarily
+        password = request.form['password']  # Get the password from the form
+
+        # Hash the password using SHA-256
+        hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
 
         conn = get_db_connection()
         try:
             conn.execute(
                 'INSERT INTO Users (name, email, password) VALUES (?, ?, ?)',
-                (name, email, password)
+                (name, email, hashed_password)  # Store the hashed password
             )
             conn.commit()
             flash("Signup successful! You can now log in.", "success")
@@ -52,27 +58,36 @@ def signup():
 
     return render_template('signup.html')
 
+
 # Route for user login
 @app.route('/')
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form['email']
-        password = request.form['password']
+        password = request.form['password']  # Get the plain-text password from the form
 
         conn = get_db_connection()
-        user = conn.execute('SELECT * FROM Users WHERE email = ? AND password = ?', (email, password)).fetchone()
+        user = conn.execute('SELECT * FROM Users WHERE email = ?', (email,)).fetchone()
         conn.close()
 
         if user:
-            session['user_id'] = user['user_id']
-            session['user_name'] = user['name']
-            flash("Login successful!", "success")
-            return redirect(url_for('dashboard'))  # Redirect to dashboard after login
+            # Hash the input password
+            hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
+
+            # Compare the stored hash with the hashed input
+            if user['password'] == hashed_password:
+                session['user_id'] = user['user_id']
+                session['user_name'] = user['name']
+                flash("Login successful!", "success")
+                return redirect(url_for('dashboard'))
+            else:
+                flash("Invalid email or password.", "error")
         else:
             flash("Invalid email or password.", "error")
 
     return render_template('login.html')
+
 
 # Route for user logout
 @app.route('/logout')
@@ -238,9 +253,9 @@ def item_details(item_id):
     if not owner:
         owner = {"name": "Unknown", "location": "Unknown", "user_id": None}
 
-    # Fetch reviews
-    reviews = conn.execute("SELECT * FROM Reviews WHERE user_id = ?", (owner['user_id'],)).fetchall()
-    average_rating = conn.execute("SELECT AVG(rating) FROM Reviews WHERE user_id = ?", (owner['user_id'],)).fetchone()[0]
+    # Fetch reviews associated with the owner
+    reviews = conn.execute("SELECT * FROM Reviews WHERE owner_id = ?", (owner['user_id'],)).fetchall()
+    average_rating = conn.execute("SELECT AVG(rating) FROM Reviews WHERE owner_id = ?", (owner['user_id'],)).fetchone()[0]
 
     # Fetch reservations for this item
     reservations = conn.execute("SELECT * FROM Reservations WHERE item_id = ?", (item_id,)).fetchall()
@@ -258,6 +273,7 @@ def item_details(item_id):
         reservations=reservations,
         user_reserved=user_reserved
     )
+
 
 
 # Route to send a message to the owner
@@ -502,6 +518,53 @@ def chat(user_id):
 
     return render_template('messages.html', conversations=conversations, recipient=recipient, messages=messages)
 
+#   Reviews 
+@app.route('/submit_review/<int:owner_id>', methods=['POST'])
+def submit_review(owner_id):
+    if 'user_id' not in session:
+        flash("Please log in to submit a review.", "error")
+        return redirect(url_for('login'))
+    
+    # Get the form data
+    rating = request.form.get('rating')
+    review_comment = request.form.get('review_comment')
+    user_id = session['user_id']
+    timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+    if not rating or not review_comment:
+        flash("Please provide both a rating and a review comment.", "error")
+        return redirect(request.referrer)
+
+    conn = get_db_connection()
+    try:
+        # Save the review in the Reviews table
+        conn.execute('''
+            INSERT INTO Reviews (user_id, owner_id, rating, comment, timestamp)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (user_id, owner_id, rating, review_comment, timestamp))
+        conn.commit()
+        flash("Your review has been submitted successfully!", "success")
+    except Exception as e:
+        flash(f"An error occurred while submitting your review: {str(e)}", "error")
+    finally:
+        conn.close()
+
+    return redirect(request.referrer)  # Redirect back to the item details page
+
+@app.route('/profile', methods=['GET'])
+def profile():
+    if 'user_id' not in session:
+        flash("Please log in to access your profile.", "error")
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    conn = get_db_connection()
+
+    # Fetch the current user's information
+    user = conn.execute('SELECT * FROM Users WHERE user_id = ?', (user_id,)).fetchone()
+    conn.close()
+
+    return render_template('profile.html', user=user)
 
 if __name__ == '__main__':
     app.run(debug=True)
