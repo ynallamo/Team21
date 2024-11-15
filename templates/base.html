@@ -7,49 +7,57 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* Custom styling for footer */
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px 0;
+            border-top: 1px solid #ddd;
+        }
+        .footer-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center; /* Center-aligns content vertically */
+            gap: 2rem;
+            flex-wrap: nowrap;
+        }
+        .footer-column {
+            flex: 1 1 33%; /* Ensure each column takes up exactly 1/3 of the width */
+            min-width: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Center-aligns text vertically within each column */
+        }
+        .footer-column h5 {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
     <!-- Navbar -->
-    <!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="{{ url_for('dashboard') }}">Smart Neighborhood Exchange</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <!-- Centered Navigation Links -->
-        <ul class="navbar-nav mx-auto">
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('messages') }}">Messages</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('list_item') }}">List Item</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('rent_item') }}">Rent Item</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('reserved_items') }}">Reserved Items</a>
-            </li>
-        </ul>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="{{ url_for('dashboard') }}">Smart Neighborhood Exchange</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <!-- Centered Navigation Links -->
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('messages') }}">Messages</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('list_item') }}">List Item</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('rent_item') }}">Rent Item</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('reserved_items') }}">Reserved Items</a></li>
+            </ul>
 
-        <!-- Right-aligned Buttons -->
-        <ul class="navbar-nav ml-auto">
-            <!-- Profile Button -->
-            <li class="nav-item">
-                <a class="btn btn-outline-primary ml-2" href="{{ url_for('profile') }}">Profile</a>
-            </li>
-            <!-- Logout Button -->
-            <li class="nav-item">
-                <a class="btn btn-outline-danger ml-2" href="{{ url_for('logout') }}">Logout</a>
-            </li>
-        </ul>
-    </div>
-</nav>
-
+            <!-- Right-aligned Buttons -->
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item"><a class="btn btn-outline-primary ml-2" href="{{ url_for('profile') }}">Profile</a></li>
+                <li class="nav-item"><a class="btn btn-outline-danger ml-2" href="{{ url_for('logout') }}">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
 
     <!-- Page Content -->
     <div class="container mt-4">
@@ -73,41 +81,36 @@
     {% endwith %}
 
     <!-- Footer -->
-    <footer class="bg-light text-center text-lg-start mt-5 border-top">
-        <div class="container p-4">
-            <div class="d-flex justify-content-between align-items-start flex-wrap">
-                <!-- About Section -->
-                <div class="col-lg-4 col-md-4 col-sm-12 mb-4 mb-md-0" style="min-width: 250px;">
-                    <h5 class="text-uppercase">About Us</h5>
-                    <p>
-                        Smart Neighborhood Exchange is a platform where you can share, rent, and reserve items and spaces within your community.
-                    </p>
-                </div>
+    <footer class="footer">
+        <div class="container footer-container">
+            <!-- About Us Column -->
+            <div class="footer-column">
+                <h5>About Us</h5>
+                <p>Smart Neighborhood Exchange is a platform where you can share, rent, and reserve items and spaces within your community.</p>
+            </div>
 
-                <!-- Quick Links -->
-                <div class="col-lg-4 col-md-4 col-sm-12 mb-4 mb-md-0" style="min-width: 250px;">
-                    <h5 class="text-uppercase">Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="{{ url_for('dashboard') }}" class="text-dark">Dashboard</a></li>
-                        <li><a href="{{ url_for('list_item') }}" class="text-dark">List Item</a></li>
-                        <li><a href="{{ url_for('rent_item') }}" class="text-dark">Rent Item</a></li>
-                        <li><a href="{{ url_for('reserved_items') }}" class="text-dark">Reserved Items</a></li>
-                        <li><a href="{{ url_for('logout') }}" class="text-dark">Logout</a></li>
-                    </ul>
-                </div>
+            <!-- Quick Links Column -->
+            <div class="footer-column">
+                <h5>Quick Links</h5>
+                <ul class="list-unstyled">
+                    <li><a href="{{ url_for('dashboard') }}" class="text-dark">Dashboard</a></li>
+                    <li><a href="{{ url_for('list_item') }}" class="text-dark">List Item</a></li>
+                    <li><a href="{{ url_for('rent_item') }}" class="text-dark">Rent Item</a></li>
+                    <li><a href="{{ url_for('reserved_items') }}" class="text-dark">Reserved Items</a></li>
+                    <li><a href="{{ url_for('logout') }}" class="text-dark">Logout</a></li>
+                </ul>
+            </div>
 
-                <!-- Contact Section -->
-                <div class="col-lg-4 col-md-4 col-sm-12" style="min-width: 250px;">
-                    <h5 class="text-uppercase">Contact</h5>
-                    <ul class="list-unstyled">
-                        <li><span class="text-dark">Email:</span> support@smartneighborhood.com</li>
-                        <li><span class="text-dark">Phone:</span> +1 (555) 555-5555</li>
-                        <li><span class="text-dark">Address:</span> 123 Community Lane, City, State</li>
-                    </ul>
-                </div>
+            <!-- Contact Column -->
+            <div class="footer-column">
+                <h5>Contact</h5>
+                <ul class="list-unstyled">
+                    <li><strong>Email:</strong> support@smartneighborhood.com</li>
+                    <li><strong>Phone:</strong> +1 (555) 555-5555</li>
+                    <li><strong>Address:</strong> 123 Community Lane, City, State</li>
+                </ul>
             </div>
         </div>
-
         <!-- Copyright -->
         <div class="text-center p-3 bg-light border-top">
             © 2024 Smart Neighborhood Exchange. All Rights Reserved.
