@@ -12,12 +12,18 @@
             font-size: 0.9rem;
             margin-top: 0.25rem;
         }
+        .image-preview {
+            margin-top: 0.5rem;
+            max-width: 150px;
+            max-height: 150px;
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="container mt-5">
         <h2 class="text-center">Sign Up</h2>
-        <form method="POST" action="{{ url_for('signup') }}" id="signupForm">
+        <form method="POST" action="{{ url_for('signup') }}" id="signupForm" enctype="multipart/form-data">
             <div class="form-group">
                 <label for="name">Name</label>
                 <input type="text" class="form-control" id="name" name="name" required>
@@ -32,6 +38,16 @@
                 <label for="password">Password</label>
                 <input type="password" class="form-control" id="password" name="password" required>
                 <div class="error-message" id="passwordError"></div>
+            </div>
+            <div class="form-group">
+                <label for="location">Location</label>
+                <input type="text" class="form-control" id="location" name="location" required>
+                <div class="error-message" id="locationError"></div>
+            </div>
+            <div class="form-group">
+                <label for="profileImage">Profile Picture</label>
+                <input type="file" class="form-control-file" id="profileImage" name="profile_image" accept="image/*">
+                <img id="imagePreview" class="image-preview" alt="Image Preview">
             </div>
             <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
         </form>
@@ -59,9 +75,11 @@
             // Clear previous error messages
             document.getElementById('emailError').textContent = '';
             document.getElementById('passwordError').textContent = '';
+            document.getElementById('locationError').textContent = '';
 
             const emailInput = document.getElementById('email').value;
             const passwordInput = document.getElementById('password').value;
+            const locationInput = document.getElementById('location').value;
 
             // Regex to validate email format
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -76,12 +94,31 @@
                 isValid = false;
             }
 
+            // Check if location is provided
+            if (locationInput.trim() === '') {
+                document.getElementById('locationError').textContent = "Location is required.";
+                isValid = false;
+            }
+
             // Prevent form submission if not valid
             if (!isValid) {
                 event.preventDefault();
             }
         });
+
+        // Preview image before upload
+        document.getElementById('profileImage').addEventListener('change', function () {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const imagePreview = document.getElementById('imagePreview');
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
     </script>
 </body>
 </html>
-
