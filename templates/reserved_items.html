@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Reserved Items{% endblock %}
+
+{% block content %}
+<h1>My Reserved Items</h1>
+
+{% if reserved_items %}
+    <div class="row">
+        {% for item in reserved_items %}
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <img src="{{ url_for('static', filename=item['images'] if item['images'] else 'images/default.jpg') }}" class="card-img-top" alt="Item image">
+                <div class="card-body">
+                    <h5 class="card-title">{{ item['title'] }}</h5>
+                    <p>Reserved From: {{ item['start_date'] }}</p>
+                    <p>Reserved To: {{ item['end_date'] }}</p>
+                    <form method="POST" action="{{ url_for('cancel_reservation', reservation_id=item['reservation_id']) }}">
+                        <button type="submit" class="btn btn-danger">Cancel Reservation</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="text-muted">You have no reserved items.</p>
+{% endif %}
+{% endblock %}

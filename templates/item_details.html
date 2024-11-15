@@ -15,7 +15,6 @@
         {% elif item_type == 'community' %}
             <p>Location: {{ item['location'] }}</p>
         {% endif %}
-        <p>Availability: {{ item['availability'] }}</p>
     </div>
 </div>
 
@@ -44,17 +43,44 @@
     {% endif %}
 </div>
 
-<!-- Reservation Calendar Section -->
+<!-- Existing Reservations Section -->
+<div class="mt-4">
+    <h3>Existing Reservations</h3>
+    {% if reservations %}
+        <ul class="list-group">
+            {% for reservation in reservations %}
+                <li class="list-group-item">
+                    Reserved from {{ reservation.start_date }} to {{ reservation.end_date }}
+                    {% if reservation.user_id == session['user_id'] %}
+                        (You reserved this)
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No reservations yet.</p>
+    {% endif %}
+</div>
+
+<!-- Reservation Form -->
 <div class="mt-4">
     <h3>Reserve This Item</h3>
-    <p>Select a date to reserve this item:</p>
-    <form method="POST" action="{{ url_for('reserve_item', item_id=item['resource_id'] if item_type == 'resource' else item['community_id']) }}">
-        <div class="form-group">
-            <label for="reservation_date">Reservation Date:</label>
-            <input type="date" class="form-control" id="reservation_date" name="reservation_date" required>
-        </div>
-        <button type="submit" class="btn btn-success mt-2">Reserve</button>
-    </form>
+
+    {% if user_reserved %}
+        <p class="text-danger">You have already reserved this item. Please cancel your reservation or choose a different date range.</p>
+    {% else %}
+        <form method="POST" action="{{ url_for('reserve_item', item_id=item['resource_id'] if item_type == 'resource' else item['community_id']) }}">
+            <div class="form-group">
+                <label for="start_date">From Date:</label>
+                <input type="date" class="form-control" id="start_date" name="start_date" required>
+            </div>
+            <div class="form-group">
+                <label for="end_date">To Date:</label>
+                <input type="date" class="form-control" id="end_date" name="end_date" required>
+            </div>
+            <button type="submit" class="btn btn-success">Reserve</button>
+        </form>
+    {% endif %}
 </div>
 
 <!-- Messaging Section -->

@@ -59,17 +59,17 @@ def setup_database():
     )
     ''')
 
-    # cursor.execute('''
-    # CREATE TABLE IF NOT EXISTS Reservations (
-    #     reservation_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    #     item_id INTEGER NOT NULL,
-    #     user_id INTEGER NOT NULL,
-    #     start_date DATE NOT NULL,
-    #     end_date DATE NOT NULL,
-    #     FOREIGN KEY (item_id) REFERENCES Resources (resource_id),
-    #     FOREIGN KEY (user_id) REFERENCES Users (user_id)
-    # )
-    # ''')
+    cursor.execute('''
+CREATE TABLE IF NOT EXISTS Reservations (
+    reservation_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    item_id INTEGER NOT NULL,
+    start_date TEXT NOT NULL,
+    end_date TEXT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id),
+    FOREIGN KEY (item_id) REFERENCES Resources(resource_id) ON DELETE CASCADE
+)
+''')
 
     cursor.execute('''
 CREATE TABLE IF NOT EXISTS Community (

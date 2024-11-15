@@ -3,6 +3,8 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import sqlite3
 from werkzeug.utils import secure_filename
+from math import ceil
+
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Needed for session management
@@ -206,15 +208,19 @@ def list_item():
 @app.route('/rent_item', methods=['GET'])
 def rent_item():
     conn = get_db_connection()
-    resources = conn.execute("SELECT * FROM Resources WHERE availability = 'available'").fetchall()
-    community_spaces = conn.execute("SELECT * FROM Community WHERE availability = 'available'").fetchall()
+    # Fetch all resources and community spaces
+    resources = conn.execute("SELECT * FROM Resources").fetchall()
+    community_spaces = conn.execute("SELECT * FROM Community").fetchall()
     conn.close()
     return render_template('rent_item.html', resources=resources, community_spaces=community_spaces)
+
 
 # Route to show details for a specific item
 @app.route('/item/<int:item_id>', methods=['GET'])
 def item_details(item_id):
     conn = get_db_connection()
+
+    # Fetch the item details (resource or community space)
     resource = conn.execute("SELECT * FROM Resources WHERE resource_id = ?", (item_id,)).fetchone()
     community_space = conn.execute("SELECT * FROM Community WHERE community_id = ?", (item_id,)).fetchone()
     if resource:
@@ -227,14 +233,32 @@ def item_details(item_id):
         conn.close()
         return "Item not found", 404
 
+    # Fetch the owner details
     owner = conn.execute("SELECT * FROM Users WHERE user_id = ?", (item['user_id'],)).fetchone()
     if not owner:
         owner = {"name": "Unknown", "location": "Unknown", "user_id": None}
 
+    # Fetch reviews
     reviews = conn.execute("SELECT * FROM Reviews WHERE user_id = ?", (owner['user_id'],)).fetchall()
     average_rating = conn.execute("SELECT AVG(rating) FROM Reviews WHERE user_id = ?", (owner['user_id'],)).fetchone()[0]
+
+    # Fetch reservations for this item
+    reservations = conn.execute("SELECT * FROM Reservations WHERE item_id = ?", (item_id,)).fetchall()
+    user_reserved = any(reservation['user_id'] == session.get('user_id') for reservation in reservations)
+
     conn.close()
-    return render_template('item_details.html', item=item, item_type=item_type, owner=owner, reviews=reviews, average_rating=average_rating)
+
+    return render_template(
+        'item_details.html',
+        item=item,
+        item_type=item_type,
+        owner=owner,
+        reviews=reviews,
+        average_rating=average_rating,
+        reservations=reservations,
+        user_reserved=user_reserved
+    )
+
 
 # Route to send a message to the owner
 @app.route('/send_message/<int:receiver_id>', methods=['POST'])
@@ -258,25 +282,132 @@ def send_message(receiver_id):
     return redirect(url_for('item_details', item_id=receiver_id))
 
 # Route to reserve an item
-@app.route('/reserve_item/<int:item_id>', methods=['POST'])
+# @app.route('/reserve_item/<int:item_id>', methods=['POST'])
+# def reserve_item(item_id):
+#     if 'user_id' not in session:
+#         flash("Please log in to reserve an item.", "error")
+#         return redirect(url_for('login'))
+
+#     # Check for start_date and end_date in the form
+#     start_date = request.form.get('start_date')
+#     end_date = request.form.get('end_date')
+
+#     if not start_date or not end_date:
+#         flash("Invalid reservation dates. Please try again.", "error")
+#         return redirect(url_for('item_details', item_id=item_id))
+
+#     user_id = session['user_id']
+
+#     conn = get_db_connection()
+#     conn.execute('''
+#         INSERT INTO Reservations (item_id, user_id, start_date, end_date)
+#         VALUES (?, ?, ?, ?)
+#     ''', (item_id, user_id, start_date, end_date))
+#     conn.commit()
+#     conn.close()
+
+#     flash(f"Item reserved successfully from {start_date} to {end_date}!", "success")
+#     return redirect(url_for('item_details', item_id=item_id))
+
+#   Route to handle reservation
+@app.route('/reserve/<int:item_id>', methods=['POST'])
 def reserve_item(item_id):
     if 'user_id' not in session:
         flash("Please log in to reserve an item.", "error")
         return redirect(url_for('login'))
 
-    reservation_date = request.form['reservation_date']
     user_id = session['user_id']
+    start_date = request.form['start_date']
+    end_date = request.form['end_date']
 
     conn = get_db_connection()
-    conn.execute('''
-        INSERT INTO Reservations (item_id, user_id, reservation_date)
-        VALUES (?, ?, ?)
-    ''', (item_id, user_id, reservation_date))
-    conn.commit()
+    try:
+        # Check if the item is already reserved during the selected date range
+        conflicts = conn.execute('''
+            SELECT * FROM Reservations
+            WHERE item_id = ? AND (
+                (start_date <= ? AND end_date >= ?) OR
+                (start_date <= ? AND end_date >= ?) OR
+                (start_date >= ? AND end_date <= ?)
+            )
+        ''', (item_id, start_date, start_date, end_date, end_date, start_date, end_date)).fetchall()
+
+        if conflicts:
+            flash("The selected dates are unavailable. Please choose a different range.", "error")
+            return redirect(url_for('item_details', item_id=item_id))
+
+        # Insert the reservation if no conflicts exist
+        conn.execute(
+            "INSERT INTO Reservations (user_id, item_id, start_date, end_date) VALUES (?, ?, ?, ?)",
+            (user_id, item_id, start_date, end_date)
+        )
+
+        # Mark the item as unavailable
+        if conn.execute("SELECT * FROM Resources WHERE resource_id = ?", (item_id,)).fetchone():
+            conn.execute("UPDATE Resources SET availability = 'unavailable' WHERE resource_id = ?", (item_id,))
+        elif conn.execute("SELECT * FROM Community WHERE community_id = ?", (item_id,)).fetchone():
+            conn.execute("UPDATE Community SET availability = 'unavailable' WHERE community_id = ?", (item_id,))
+
+        conn.commit()
+        flash("Item reserved successfully!", "success")
+    except Exception as e:
+        flash(f"Error reserving item: {str(e)}", "error")
+    finally:
+        conn.close()
+
+    return redirect(url_for('reserved_items'))
+
+
+#   Route for displaying reserved items
+@app.route('/reserved_items', methods=['GET'])
+def reserved_items():
+    if 'user_id' not in session:
+        flash("Please log in to view reserved items.", "error")
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    conn = get_db_connection()
+    reserved_items = conn.execute('''
+        SELECT r.reservation_id, r.start_date, r.end_date, i.title, i.images
+        FROM Reservations r
+        JOIN Resources i ON r.item_id = i.resource_id
+        WHERE r.user_id = ?
+    ''', (user_id,)).fetchall()
     conn.close()
 
-    flash(f"Item reserved successfully for {reservation_date}!", "success")
-    return redirect(url_for('item_details', item_id=item_id))
+    return render_template('reserved_items.html', reserved_items=reserved_items)
+
+#   Route for cancelling reservations
+
+@app.route('/cancel_reservation/<int:reservation_id>', methods=['POST'])
+def cancel_reservation(reservation_id):
+    if 'user_id' not in session:
+        flash("Please log in to cancel a reservation.", "error")
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    try:
+        conn.execute("DELETE FROM Reservations WHERE reservation_id = ?", (reservation_id,))
+        conn.commit()
+        flash("Reservation canceled successfully!", "success")
+    except Exception as e:
+        flash(f"Error canceling reservation: {str(e)}", "error")
+    finally:
+        conn.close()
+
+    return redirect(url_for('reserved_items'))
+
+#  New route to fetch reserved dates dynamically 
+@app.route('/fetch_reserved_dates/<int:item_id>', methods=['GET'])
+def fetch_reserved_dates(item_id):
+    conn = get_db_connection()
+    reserved_dates = conn.execute('''
+        SELECT start_date, end_date FROM Reservations WHERE item_id = ?
+    ''', (item_id,)).fetchall()
+    conn.close()
+
+    return jsonify([{"start": row["start_date"], "end": row["end_date"]} for row in reserved_dates])
+
 
 
 if __name__ == '__main__':

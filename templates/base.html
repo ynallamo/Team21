@@ -10,17 +10,26 @@
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="{{ url_for('list_item') }}">Smart Neighborhood Exchange</a>
+        <a class="navbar-brand" href="{{ url_for('dashboard') }}">Smart Neighborhood Exchange</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('list_item') }}">List Item</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('rent_item') }}">Rent Item</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('reserved_items') }}">Reserved Items</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
                 </li>
             </ul>
         </div>
@@ -30,6 +39,64 @@
     <div class="container mt-4">
         {% block content %}{% endblock %}
     </div>
+
+    <!-- Footer -->
+    <footer class="bg-light text-center text-lg-start mt-5 border-top">
+        <div class="container p-4">
+            <div class="row">
+                <!-- About Section -->
+                <div class="col-lg-4 col-md-6 mb-4 mb-md-0">
+                    <h5 class="text-uppercase">About Us</h5>
+                    <p>
+                        Smart Neighborhood Exchange is a platform where you can share, rent, and reserve items and spaces within your community.
+                    </p>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="col-lg-4 col-md-6 mb-4 mb-md-0">
+                    <h5 class="text-uppercase">Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li>
+                            <a href="{{ url_for('dashboard') }}" class="text-dark">Dashboard</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('list_item') }}" class="text-dark">List Item</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('rent_item') }}" class="text-dark">Rent Item</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('reserved_items') }}" class="text-dark">Reserved Items</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('logout') }}" class="text-dark">Logout</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Contact Section -->
+                <div class="col-lg-4 col-md-12 mb-4 mb-md-0">
+                    <h5 class="text-uppercase">Contact</h5>
+                    <ul class="list-unstyled">
+                        <li>
+                            <span class="text-dark">Email:</span> support@smartneighborhood.com
+                        </li>
+                        <li>
+                            <span class="text-dark">Phone:</span> +1 (555) 555-5555
+                        </li>
+                        <li>
+                            <span class="text-dark">Address:</span> 123 Community Lane, City, State
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Copyright -->
+        <div class="text-center p-3 bg-light border-top">
+            © 2024 Smart Neighborhood Exchange. All Rights Reserved.
+        </div>
+    </footer>
 
     <!-- Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
