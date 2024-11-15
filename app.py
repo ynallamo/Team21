@@ -238,9 +238,9 @@ def item_details(item_id):
     if not owner:
         owner = {"name": "Unknown", "location": "Unknown", "user_id": None}
 
-    # Fetch reviews
-    reviews = conn.execute("SELECT * FROM Reviews WHERE user_id = ?", (owner['user_id'],)).fetchall()
-    average_rating = conn.execute("SELECT AVG(rating) FROM Reviews WHERE user_id = ?", (owner['user_id'],)).fetchone()[0]
+    # Fetch reviews associated with the owner
+    reviews = conn.execute("SELECT * FROM Reviews WHERE owner_id = ?", (owner['user_id'],)).fetchall()
+    average_rating = conn.execute("SELECT AVG(rating) FROM Reviews WHERE owner_id = ?", (owner['user_id'],)).fetchone()[0]
 
     # Fetch reservations for this item
     reservations = conn.execute("SELECT * FROM Reservations WHERE item_id = ?", (item_id,)).fetchall()
@@ -258,6 +258,7 @@ def item_details(item_id):
         reservations=reservations,
         user_reserved=user_reserved
     )
+
 
 
 # Route to send a message to the owner
@@ -501,6 +502,40 @@ def chat(user_id):
     conversations = [{'user_id': conv['user_id'], 'name': conv['name'], 'last_message': conv['last_message']} for conv in conversations]
 
     return render_template('messages.html', conversations=conversations, recipient=recipient, messages=messages)
+
+#   Reviews 
+@app.route('/submit_review/<int:owner_id>', methods=['POST'])
+def submit_review(owner_id):
+    if 'user_id' not in session:
+        flash("Please log in to submit a review.", "error")
+        return redirect(url_for('login'))
+    
+    # Get the form data
+    rating = request.form.get('rating')
+    review_comment = request.form.get('review_comment')
+    user_id = session['user_id']
+    timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+    if not rating or not review_comment:
+        flash("Please provide both a rating and a review comment.", "error")
+        return redirect(request.referrer)
+
+    conn = get_db_connection()
+    try:
+        # Save the review in the Reviews table
+        conn.execute('''
+            INSERT INTO Reviews (user_id, owner_id, rating, comment, timestamp)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (user_id, owner_id, rating, review_comment, timestamp))
+        conn.commit()
+        flash("Your review has been submitted successfully!", "success")
+    except Exception as e:
+        flash(f"An error occurred while submitting your review: {str(e)}", "error")
+    finally:
+        conn.close()
+
+    return redirect(request.referrer)  # Redirect back to the item details page
+
 
 
 if __name__ == '__main__':
