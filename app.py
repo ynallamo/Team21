@@ -8,9 +8,96 @@ import hashlib
 import smtplib  # For sending email
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-
+import json
+import json
+import datetime
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Needed for session management
+
+
+NOTIFICATIONS_FILE = 'notifications.json'
+
+def add_notification_to_json(user_id, message):
+    """Adds a notification to the JSON file."""
+    try:
+        with open(NOTIFICATIONS_FILE, 'r') as file:
+            notifications = json.load(file)
+    except FileNotFoundError:
+        notifications = {}
+
+    # Ensure user ID exists in notifications
+    if str(user_id) not in notifications:
+        notifications[str(user_id)] = []
+
+    # Add the notification
+    notifications[str(user_id)].append({
+        'message': message,
+        'timestamp': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'is_read': False
+    })
+
+    # Save the updated notifications
+    with open(NOTIFICATIONS_FILE, 'w') as file:
+        json.dump(notifications, file, indent=4)
+
+def mark_notifications_as_read(user_id):
+    """Marks all notifications for a user as read."""
+    try:
+        with open(NOTIFICATIONS_FILE, 'r') as file:
+            notifications = json.load(file)
+
+        # Mark all notifications as read for the user
+        if str(user_id) in notifications:
+            for notification in notifications[str(user_id)]:
+                notification['is_read'] = True
+
+        # Save updated notifications
+        with open(NOTIFICATIONS_FILE, 'w') as file:
+            json.dump(notifications, file, indent=4)
+
+    except FileNotFoundError:
+        pass
+
+def get_notifications_from_json(user_id):
+    """Fetch notifications for a specific user from the JSON file."""
+    try:
+        with open(NOTIFICATIONS_FILE, 'r') as file:
+            notifications = json.load(file)
+        return notifications.get(str(user_id), [])
+    except FileNotFoundError:
+        return []
+
+NOTIFICATIONS_FILE = 'notifications.json'
+
+def add_notification_to_json(user_id, message):
+    """Adds a notification to a JSON file."""
+    try:
+        with open(NOTIFICATIONS_FILE, 'r') as file:
+            notifications = json.load(file)
+    except FileNotFoundError:
+        notifications = {}
+
+    if str(user_id) not in notifications:
+        notifications[str(user_id)] = []
+
+    notifications[str(user_id)].append({
+        'message': message,
+        'timestamp': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'is_read': False
+    })
+
+    with open(NOTIFICATIONS_FILE, 'w') as file:
+        json.dump(notifications, file, indent=4)
+
+def get_notifications_from_json(user_id):
+    """Fetches notifications for a specific user from a JSON file."""
+    try:
+        with open(NOTIFICATIONS_FILE, 'r') as file:
+            notifications = json.load(file)
+        return notifications.get(str(user_id), [])
+    except FileNotFoundError:
+        return []
+
 
 
 
@@ -117,10 +204,11 @@ def dashboard():
         flash("Please log in to access the dashboard.", "error")
         return redirect(url_for('login'))
 
-    # Fetch other dashboard data (community feed and resources feed)
+    user_id = session['user_id']
+
     conn = get_db_connection()
 
-    # Fetch top 4 highest-rated users
+    # Fetch top-rated users
     top_rated_users = conn.execute(
         """
         SELECT user_id, name, profile_image, 
@@ -131,7 +219,7 @@ def dashboard():
         """
     ).fetchall()
 
-    # Fetch 4 most recent listings
+    # Fetch most recent listings
     recent_listings = conn.execute(
         """
         SELECT resource_id, title, images, category, date_posted
@@ -143,11 +231,16 @@ def dashboard():
 
     conn.close()
 
+    # Fetch notifications for the user
+    notifications = get_notifications_from_json(user_id)
+
     return render_template(
         'dashboard.html',
         top_rated_users=top_rated_users,
-        recent_listings=recent_listings
+        recent_listings=recent_listings,
+        notifications=notifications
     )
+
 
 # Route for resources page with search functionality
 @app.route('/resources')
@@ -424,8 +517,6 @@ def send_message(receiver_id):
 
 #   Route to handle reservation
 
-
-
 @app.route('/reserve/<int:item_id>', methods=['POST'])
 def reserve_item(item_id):
     if 'user_id' not in session:
@@ -458,12 +549,12 @@ def reserve_item(item_id):
             (user_id, item_id, start_date, end_date)
         )
 
-        # Notify the resource owner
+        # Fetch the resource and notify the owner
         resource = conn.execute("SELECT * FROM Resources WHERE resource_id = ?", (item_id,)).fetchone()
         if resource:
             owner_id = resource['user_id']
             message = f"Your resource '{resource['title']}' has been reserved from {start_date} to {end_date}."
-            add_notification(owner_id, message)
+            add_notification_to_json(owner_id, message)
 
         conn.commit()
         flash("Item reserved successfully!", "success")
@@ -473,7 +564,6 @@ def reserve_item(item_id):
         conn.close()
 
     return redirect(url_for('reserved_items'))
-
 
 #   Route for displaying reserved items
 @app.route('/reserved_items', methods=['GET'])
