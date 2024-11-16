@@ -130,6 +130,7 @@ def signup():
         name = request.form['name']
         email = request.form['email']
         password = request.form['password']
+        location = request.form['location']  # Fetch location from the form
 
         # Hash the password
         hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
@@ -147,8 +148,8 @@ def signup():
         conn = get_db_connection()
         try:
             conn.execute(
-                'INSERT INTO Users (name, email, password, profile_image) VALUES (?, ?, ?, ?)',
-                (name, email, hashed_password, profile_image)
+                'INSERT INTO Users (name, email, password, location, profile_image) VALUES (?, ?, ?, ?, ?)',
+                (name, email, hashed_password, location, profile_image)
             )
             conn.commit()
             flash("Signup successful! You can now log in.", "success")
@@ -159,6 +160,7 @@ def signup():
             conn.close()
 
     return render_template('signup.html')
+
 
 # Route for user login
 @app.route('/')
