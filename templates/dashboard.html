@@ -13,21 +13,23 @@
         <a class="btn btn-primary btn-lg" href="{{ url_for('rent_item') }}" role="button">Explore Items to Rent</a>
     </div>
 
-
+    <!-- Notifications Section -->
+    <div class="mt-5">
+        <h2>Your Notifications</h2>
+        <div class="list-group mb-4">
+            {% for notification in notifications %}
+                <div class="list-group-item {% if not notification.is_read %}list-group-item-info{% endif %}">
+                    <p class="mb-1">{{ notification.message }}</p>
+                    <small class="text-muted">{{ notification.timestamp }}</small>
+                </div>
+            {% else %}
+                <div class="list-group-item">No new notifications.</div>
+            {% endfor %}
+        </div>
+    </div>
 
     <!-- Top-Rated Users and Recent Listings Section -->
-    <div class="row mt-5">
-        <h2>Your Notifications</h2>
-    <div class="list-group mb-4">
-        {% for notification in notifications %}
-            <div class="list-group-item {% if not notification.is_read %}list-group-item-info{% endif %}">
-                <p class="mb-1">{{ notification.message }}</p>
-                <small class="text-muted">{{ notification.timestamp }}</small>
-            </div>
-        {% else %}
-            <div class="list-group-item">No new notifications.</div>
-        {% endfor %}
-    </div>
+    <div class="row mt-4">
         <!-- Top-Rated Users -->
         <div class="col-md-6">
             <h2>Top-Rated Users</h2>
@@ -69,3 +71,4 @@
     </div>
 </div>
 {% endblock %}
+
