@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Organize Event{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Organize an Event</h1>
+
+    <form method="POST" action="{{ url_for('organize_event', community_id=community_id) }}" class="card shadow p-4">
+        <!-- Event Name -->
+        <div class="mb-3">
+            <label for="event_name" class="form-label">Event Name:</label>
+            <input type="text" id="event_name" name="event_name" class="form-control" placeholder="Enter event name" required>
+        </div>
+
+        <!-- Event Details -->
+        <div class="mb-3">
+            <label for="event_details" class="form-label">Event Details:</label>
+            <textarea id="event_details" name="event_details" class="form-control" rows="5" placeholder="Provide event details" required></textarea>
+        </div>
+
+        <!-- Event Date -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="event_date" class="form-label">Event Date:</label>
+                <input type="date" id="event_date" name="event_date" class="form-control" required>
+            </div>
+            <!-- Event Time -->
+            <div class="col-md-6">
+                <label for="event_time" class="form-label">Event Time:</label>
+                <input type="time" id="event_time" name="event_time" class="form-control" required>
+            </div>
+        </div>
+
+        <!-- Share Email -->
+        <div class="mb-3">
+            <label for="share_email" class="form-label">Share with Email (optional):</label>
+            <input type="email" id="share_email" name="share_email" class="form-control" placeholder="Enter email to share">
+        </div>
+
+        <!-- Submit Button -->
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary w-100">Create and Share</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
