@@ -808,6 +808,7 @@ def my_listings():
 
     return render_template('my_listings.html', resources=resources, community_events=community_events)
 
+# organize event confirmation
 @app.route('/organize_event/<int:community_id>', methods=['GET', 'POST'])
 def organize_event(community_id):
     if 'user_id' not in session:
@@ -819,34 +820,30 @@ def organize_event(community_id):
         event_details = request.form['event_details']
         event_date = request.form['event_date']
         event_time = request.form['event_time']
-        share_email = request.form.get('share_email')
 
-        # Save event details to the database
         conn = get_db_connection()
         try:
+            # Save the event details in the database
             conn.execute('''
-                INSERT INTO Events (community_id, user_id, event_name, event_details, event_date, event_time)
-                VALUES (?, ?, ?, ?, ?, ?)
-            ''', (community_id, session['user_id'], event_name, event_details, event_date, event_time))
+                INSERT INTO Events (community_id, event_name, event_details, event_date, event_time)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (community_id, event_name, event_details, event_date, event_time))
             conn.commit()
         except Exception as e:
-            flash(f"Error saving event: {str(e)}", "error")
+            flash(f"Failed to create event: {str(e)}", "error")
         finally:
             conn.close()
 
-        # If email sharing is selected
-        if share_email:
-            try:
-                send_event_email(share_email, event_name, event_details, event_date, event_time)
-                flash("Event created and email shared successfully!", "success")
-            except Exception as e:
-                flash(f"Event created but email sharing failed: {str(e)}", "error")
-        else:
-            flash("Event created successfully!", "success")
-
-        return redirect(url_for('reserved_items'))
+        # Show success message and redirect to dashboard
+        return '''
+        <script>
+            alert('Event created successfully!');
+            window.location.href = '/dashboard';
+        </script>
+        '''
 
     return render_template('organize_event.html', community_id=community_id)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
