@@ -786,7 +786,5 @@ def my_listings():
 
     return render_template('my_listings.html', resources=resources, community_events=community_events)
 
-
-
 if __name__ == '__main__':
     app.run(debug=True)

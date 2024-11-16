@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}My Reviews{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center text-primary mb-4">My Reviews</h1>
+
+    {% if reviews %}
+    <div class="row">
+        {% for review in reviews %}
+        <div class="col-md-6">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-info">For: {{ review['item_title'] }}</h5>
+                    <p><strong>Type:</strong> {{ review['item_type'] | capitalize }}</p>
+                    <p><strong>Reviewer:</strong> {{ review['reviewer_name'] }}</p>
+                    <p><strong>Rating:</strong> {{ review['rating'] }} / 5</p>
+                    <p><strong>Comment:</strong> {{ review['comment'] }}</p>
+                </div>
+                <div class="card-footer text-muted">
+                    Reviewed on {{ review['timestamp'] }}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-muted text-center">You have not received any reviews yet.</p>
+    {% endif %}
+</div>
+{% endblock %}
