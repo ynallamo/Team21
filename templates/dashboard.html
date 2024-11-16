@@ -12,18 +12,7 @@
         <p>Explore community spaces, list resources, or join events to make the most of your neighborhood!</p>
         <a class="btn btn-primary btn-lg" href="{{ url_for('rent_item') }}" role="button">Explore Items to Rent</a>
     </div>
-    <!-- Notifications Section -->
-<h2>Your Notifications</h2>
-<div class="list-group mb-4">
-    {% for notification in notifications %}
-        <div class="list-group-item {% if notification['is_read'] == 0 %}list-group-item-info{% endif %}">
-            <p class="mb-1">{{ notification['message'] }}</p>
-            <small class="text-muted">{{ notification['timestamp'] }}</small>
-        </div>
-    {% else %}
-        <div class="list-group-item">No new notifications.</div>
-    {% endfor %}
-</div>
+
 
 
     <!-- Top-Rated Users and Recent Listings Section -->

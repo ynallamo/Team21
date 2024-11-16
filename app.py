@@ -117,28 +117,8 @@ def dashboard():
         flash("Please log in to access the dashboard.", "error")
         return redirect(url_for('login'))
 
-    user_id = session['user_id']
-
-    # Fetch notifications for the user
-    notifications = get_notifications(user_id)
-
     # Fetch other dashboard data (community feed and resources feed)
     conn = get_db_connection()
-    community_feed = conn.execute(
-        "SELECT * FROM Community ORDER BY date_posted DESC LIMIT 5"
-    ).fetchall()
-    resources_feed = conn.execute(
-        "SELECT * FROM Resources ORDER BY date_posted DESC LIMIT 5"
-    ).fetchall()
-    conn.close()
-
-    return render_template(
-        'dashboard.html',
-        notifications=notifications,
-        community_feed=community_feed,
-        resources_feed=resources_feed
-    )
-
 
     # Fetch top 4 highest-rated users
     top_rated_users = conn.execute(
@@ -444,33 +424,7 @@ def send_message(receiver_id):
 
 #   Route to handle reservation
 
-def add_notification(user_id, message):
-    """Adds a notification to the database for a specific user."""
-    conn = get_db_connection()
-    conn.execute(
-        '''
-        INSERT INTO Notifications (user_id, message, is_read, timestamp)
-        VALUES (?, ?, 0, CURRENT_TIMESTAMP)
-        ''',
-        (user_id, message)
-    )
-    conn.commit()
-    conn.close()
 
-def get_notifications(user_id):
-    """Fetches notifications for a specific user."""
-    conn = get_db_connection()
-    notifications = conn.execute(
-        '''
-        SELECT * FROM Notifications
-        WHERE user_id = ?
-        ORDER BY timestamp DESC
-        LIMIT 10
-        ''',
-        (user_id,)
-    ).fetchall()
-    conn.close()
-    return notifications
 
 @app.route('/reserve/<int:item_id>', methods=['POST'])
 def reserve_item(item_id):
