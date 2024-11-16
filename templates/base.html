@@ -17,16 +17,16 @@
         .footer-container {
             display: flex;
             justify-content: space-between;
-            align-items: center; /* Center-aligns content vertically */
+            align-items: center;
             gap: 2rem;
             flex-wrap: nowrap;
         }
         .footer-column {
-            flex: 1 1 33%; /* Ensure each column takes up exactly 1/3 of the width */
+            flex: 1 1 33%;
             min-width: 250px;
             display: flex;
             flex-direction: column;
-            justify-content: center; /* Center-aligns text vertically within each column */
+            justify-content: center;
         }
         .footer-column h5 {
             font-weight: bold;
@@ -49,6 +49,7 @@
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('list_item') }}">List Item</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('rent_item') }}">Rent Item</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('reserved_items') }}">Reserved Items</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('my_listings') }}">My Listings</a></li>
             </ul>
 
             <!-- Right-aligned Buttons -->
@@ -97,6 +98,7 @@
                     <li><a href="{{ url_for('list_item') }}" class="text-dark">List Item</a></li>
                     <li><a href="{{ url_for('rent_item') }}" class="text-dark">Rent Item</a></li>
                     <li><a href="{{ url_for('reserved_items') }}" class="text-dark">Reserved Items</a></li>
+                    <li><a href="{{ url_for('my_listings') }}" class="text-dark">My Listings</a></li>
                     <li><a href="{{ url_for('logout') }}" class="text-dark">Logout</a></li>
                 </ul>
             </div>

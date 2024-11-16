@@ -17,7 +17,7 @@
                     <p>Reserved To: {{ item['end_date'] }}</p>
 
                     <!-- Update Reservation Button -->
-                    <button class="btn btn-primary" onclick="updateReservationPrompt({{ item['reservation_id'] }})">Update Reservation</button>
+                    <button class="btn btn-primary" onclick="updateReservationPrompt({{ item['reservation_id'] }}, '{{ item['item_type'] }}')">Update Reservation</button>
 
                     <!-- Cancel Reservation Form -->
                     <form method="POST" action="{{ url_for('cancel_reservation', reservation_id=item['reservation_id']) }}" class="mt-3">
@@ -33,7 +33,7 @@
 {% endif %}
 
 <script>
-    function updateReservationPrompt(reservationId) {
+    function updateReservationPrompt(reservationId, itemType) {
         // Prompt the user to enter new dates
         const startDate = prompt("Enter the new 'From' date (YYYY-MM-DD):");
         if (!startDate) {
@@ -47,8 +47,8 @@
             return;
         }
 
-        // Redirect to the update reservation route with the new dates
-        const updateUrl = `/update_reservation/${reservationId}?start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}`;
+        // Redirect to the update reservation route with the new dates and item type
+        const updateUrl = `/update_reservation/${reservationId}?start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}&item_type=${encodeURIComponent(itemType)}`;
         window.location.href = updateUrl;
     }
 </script>

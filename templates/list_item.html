@@ -125,6 +125,15 @@
             return false;
         }
 
+        // Check file extension
+        const file = imageInput.files[0];
+        const allowedExtensions = /(\.jpg)$/i;
+        if (!allowedExtensions.exec(file.name)) {
+            alert("Only .jpg files are allowed.");
+            imageInput.value = ""; // Clear the invalid input
+            return false;
+        }
+
         return true;
     }
 </script>

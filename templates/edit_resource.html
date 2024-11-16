@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Resource{% endblock %}
+
+{% block content %}
+<h1>Edit Resource</h1>
+
+<form method="POST" action="{{ url_for('edit_resource', resource_id=resource.resource_id) }}" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="title">Title</label>
+        <input type="text" class="form-control" id="title" name="title" value="{{ resource['title'] }}" required>
+    </div>
+    <div class="form-group">
+        <label for="description">Description</label>
+        <textarea class="form-control" id="description" name="description" rows="3" required>{{ resource['description'] }}</textarea>
+    </div>
+    <div class="form-group">
+        <label for="category">Category</label>
+        <select class="form-control" id="category" name="category" required>
+            <option value="" disabled>-- Select Category --</option>
+            <option value="Tools" {% if resource['category'] == 'Tools' %}selected{% endif %}>Tools</option>
+            <option value="Books" {% if resource['category'] == 'Books' %}selected{% endif %}>Books</option>
+            <option value="Electronics" {% if resource['category'] == 'Electronics' %}selected{% endif %}>Electronics</option>
+            <option value="Furniture" {% if resource['category'] == 'Furniture' %}selected{% endif %}>Furniture</option>
+            <option value="Other" {% if resource['category'] == 'Other' %}selected{% endif %}>Other</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="availability">Availability</label>
+        <select class="form-control" id="availability" name="availability" required>
+            <option value="" disabled>-- Select Availability --</option>
+            <option value="Available" {% if resource['availability'] == 'Available' %}selected{% endif %}>Available</option>
+            <option value="Not Available" {% if resource['availability'] == 'Not Available' %}selected{% endif %}>Not Available</option>
+            <option value="Limited Availability" {% if resource['availability'] == 'Limited Availability' %}selected{% endif %}>Limited Availability</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Update Resource</button>
+</form>
+{% endblock %}
