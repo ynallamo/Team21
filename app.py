@@ -114,24 +114,24 @@ def dashboard():
 
     conn = get_db_connection()
 
-    # Fetch top-rated users
+    # Fetch top 4 highest-rated users
     top_rated_users = conn.execute(
         """
         SELECT user_id, name, profile_image, 
                (SELECT AVG(rating) FROM Reviews WHERE user_id = u.user_id) AS rating
         FROM Users u
         ORDER BY rating DESC
-        LIMIT 6
+        LIMIT 4
         """
     ).fetchall()
 
-    # Fetch recent listings
+    # Fetch 4 most recent listings
     recent_listings = conn.execute(
         """
         SELECT resource_id, title, images, category, date_posted
         FROM Resources
         ORDER BY date_posted DESC
-        LIMIT 6
+        LIMIT 4
         """
     ).fetchall()
 
