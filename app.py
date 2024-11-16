@@ -112,17 +112,36 @@ def dashboard():
         flash("Please log in to access the dashboard.", "error")
         return redirect(url_for('login'))
 
-    # Fetch some community feed or other data to show on the dashboard
     conn = get_db_connection()
-    community_feed = conn.execute(
-        "SELECT * FROM Community ORDER BY date_posted DESC LIMIT 5"
+
+    # Fetch top-rated users
+    top_rated_users = conn.execute(
+        """
+        SELECT user_id, name, profile_image, 
+               (SELECT AVG(rating) FROM Reviews WHERE user_id = u.user_id) AS rating
+        FROM Users u
+        ORDER BY rating DESC
+        LIMIT 6
+        """
     ).fetchall()
-    resources_feed = conn.execute(
-        "SELECT * FROM Resources ORDER BY date_posted DESC LIMIT 5"
+
+    # Fetch recent listings
+    recent_listings = conn.execute(
+        """
+        SELECT resource_id, title, images, category, date_posted
+        FROM Resources
+        ORDER BY date_posted DESC
+        LIMIT 6
+        """
     ).fetchall()
+
     conn.close()
 
-    return render_template('dashboard.html', community_feed=community_feed, resources_feed=resources_feed)
+    return render_template(
+        'dashboard.html',
+        top_rated_users=top_rated_users,
+        recent_listings=recent_listings
+    )
 
 # Route for resources page with search functionality
 @app.route('/resources')

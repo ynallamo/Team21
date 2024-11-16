@@ -5,8 +5,6 @@
 {% block content %}
 <div class="container mt-5">
     <!-- Welcome Section -->
-    <div class="jumbotron">
-    <!-- Welcome Section with 90% faded white background image -->
     <div class="jumbotron" style="position: relative; background-image: url('{{ url_for('static', filename='images/nei.jpg') }}'); background-size: cover; background-position: center; background-blend-mode: overlay; background-color: rgba(255, 255, 255, 0.6);">
         <h1 class="display-4">Welcome{{ ' ' + session['user_name'] if session.get('user_name') else '' }}!</h1>
         <p class="lead">This is your community dashboard. Stay updated with the latest news and events!</p>
@@ -15,10 +13,52 @@
         <a class="btn btn-primary btn-lg" href="{{ url_for('rent_item') }}" role="button">Explore Items to Rent</a>
     </div>
 
+    <!-- Top-Rated Users and Recent Listings Section -->
+    <div class="row mt-4">
+        <!-- Top-Rated Users -->
+        <div class="col-md-6">
+            <h2>Top-Rated Users</h2>
+            <div class="row">
+                {% for user in top_rated_users %}
+                <div class="col-6 mb-3">
+                    <div class="card">
+                        <img src="{{ user.profile_image }}" class="card-img-top" alt="{{ user.name }}'s image">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ user.name }}</h5>
+                            <p class="card-text">Rating: {{ user.rating if user.rating else "No ratings yet" }}</p>
+                            <a href="{{ url_for('profile', user_id=user.user_id) }}" class="btn btn-outline-primary">View Profile</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Recent Listings -->
+        <div class="col-md-6">
+            <h2>Recent Listings</h2>
+            <div class="row">
+                {% for listing in recent_listings %}
+                <div class="col-6 mb-3">
+                    <div class="card">
+                        <img src="{{ listing.images }}" class="card-img-top" alt="{{ listing.title }}'s image">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ listing.title }}</h5>
+                            <p class="card-text">{{ listing.category }}</p>
+                            <p class="card-text"><small>Posted: {{ listing.date_posted }}</small></p>
+                            <a href="{{ url_for('item_details', item_id=listing.resource_id, item_type='resource') }}" class="btn btn-outline-primary">View Details</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
     <!-- News Feed Section -->
-    <h2>Community News Feed</h2>
+    <h2 class="mt-5">Community News Feed</h2>
     <div class="row d-flex justify-content-between" style="flex-wrap: nowrap; gap: 1rem;">
-        <!-- Hardcoded News Feed - Each card is assigned flex properties to prevent wrapping -->
+        <!-- Hardcoded News Feed -->
         <div class="col-md-4 mb-3 d-flex flex-fill">
             <div class="card h-100">
                 <img src="{{ url_for('static', filename='images/news1.png') }}" class="card-img-top" alt="News image">
