@@ -44,7 +44,7 @@
         <div class="row row-cols-1 row-cols-md-3 g-4" id="resourcesContainer">
             {% for resource in resources %}
             <div class="col resource-card" data-category="{{ resource['category'] }}" data-keywords="{{ resource['title'] }} {{ resource['description'] }}" data-location="{{ resource['location'] }}">
-                <div class="card shadow-sm h-100 border-0" onclick="location.href='{{ url_for('item_details', item_id=resource['resource_id']) }}'" style="cursor: pointer;">
+                <div class="card shadow-sm h-100 border-0" onclick="location.href='{{ url_for('item_details', item_id=resource['resource_id'], item_type='resource') }}'" style="cursor: pointer;">
                     <img src="{{ url_for('static', filename=resource['images'] if resource['images'] else 'images/default.jpg') }}" class="card-img-top" alt="Resource image" style="height: 200px; object-fit: cover;">
                     <div class="card-body">
                         <h6 class="card-title text-primary fw-bold">{{ resource['title'] }}</h6>
@@ -71,7 +71,7 @@
         <div class="row row-cols-1 row-cols-md-3 g-4" id="communityContainer">
             {% for community in community_spaces %}
             <div class="col community-card" data-keywords="{{ community['title'] }} {{ community['description'] }}" data-location="{{ community['location'] }}">
-                <div class="card shadow-sm h-100 border-0" onclick="location.href='{{ url_for('item_details', item_id=community['community_id']) }}'" style="cursor: pointer;">
+                <div class="card shadow-sm h-100 border-0" onclick="location.href='{{ url_for('item_details', item_id=community['community_id'], item_type='community') }}'" style="cursor: pointer;">
                     <img src="{{ url_for('static', filename=community['images'] if community['images'] else 'images/default.jpg') }}" class="card-img-top" alt="Community space image" style="height: 200px; object-fit: cover;">
                     <div class="card-body">
                         <h6 class="card-title text-primary fw-bold">{{ community['title'] }}</h6>

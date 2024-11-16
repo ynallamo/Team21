@@ -299,20 +299,26 @@ def update_reservation(reservation_id):
 # Route to show details for a specific item
 @app.route('/item/<int:item_id>', methods=['GET'])
 def item_details(item_id):
+    # Retrieve item_type from the query parameter
+    item_type = request.args.get('item_type')
+    
     conn = get_db_connection()
 
-    # Fetch the item details (resource or community space)
-    resource = conn.execute("SELECT * FROM Resources WHERE resource_id = ?", (item_id,)).fetchone()
-    community_space = conn.execute("SELECT * FROM Community WHERE community_id = ?", (item_id,)).fetchone()
-    if resource:
-        item = resource
-        item_type = 'resource'
-    elif community_space:
-        item = community_space
-        item_type = 'community'
+    # Fetch the item details based on item_type
+    if item_type == 'resource':
+        item = conn.execute("SELECT * FROM Resources WHERE resource_id = ?", (item_id,)).fetchone()
+    elif item_type == 'community':
+        item = conn.execute("SELECT * FROM Community WHERE community_id = ?", (item_id,)).fetchone()
     else:
         conn.close()
-        return "Item not found", 404
+        flash("Invalid item type specified.", "error")
+        return redirect(url_for('rent_item'))
+
+    # If item is not found
+    if not item:
+        conn.close()
+        flash("Item not found. Please check the ID and try again.", "error")
+        return redirect(url_for('rent_item'))
 
     # Fetch the owner details
     owner = conn.execute("SELECT * FROM Users WHERE user_id = ?", (item['user_id'],)).fetchone()
@@ -321,7 +327,8 @@ def item_details(item_id):
 
     # Fetch reviews associated with the owner
     reviews = conn.execute("SELECT * FROM Reviews WHERE owner_id = ?", (owner['user_id'],)).fetchall()
-    average_rating = conn.execute("SELECT AVG(rating) FROM Reviews WHERE owner_id = ?", (owner['user_id'],)).fetchone()[0]
+    average_rating = conn.execute("SELECT AVG(rating) FROM Reviews WHERE owner_id = ?", (owner['user_id'],)).fetchone()
+    average_rating = average_rating[0] if average_rating[0] else None
 
     # Fetch reservations for this item
     reservations = conn.execute("SELECT * FROM Reservations WHERE item_id = ?", (item_id,)).fetchall()
@@ -339,7 +346,6 @@ def item_details(item_id):
         reservations=reservations,
         user_reserved=user_reserved
     )
-
 
 
 # Route to send a message to the owner
@@ -449,12 +455,25 @@ def reserved_items():
 
     user_id = session['user_id']
     conn = get_db_connection()
-    reserved_items = conn.execute('''
-        SELECT r.reservation_id, r.start_date, r.end_date, i.title, i.images
+
+    # Fetch reserved resources and community spaces with their type
+    reserved_resources = conn.execute('''
+        SELECT r.reservation_id, r.start_date, r.end_date, res.title, res.images, 'resource' AS item_type
         FROM Reservations r
-        JOIN Resources i ON r.item_id = i.resource_id
+        JOIN Resources res ON r.item_id = res.resource_id
         WHERE r.user_id = ?
     ''', (user_id,)).fetchall()
+
+    reserved_communities = conn.execute('''
+        SELECT r.reservation_id, r.start_date, r.end_date, com.title, com.images, 'community' AS item_type
+        FROM Reservations r
+        JOIN Community com ON r.item_id = com.community_id
+        WHERE r.user_id = ?
+    ''', (user_id,)).fetchall()
+
+    # Combine both resources and communities into one list
+    reserved_items = reserved_resources + reserved_communities
+
     conn.close()
 
     return render_template('reserved_items.html', reserved_items=reserved_items)
@@ -630,6 +649,144 @@ def profile():
     conn.close()
 
     return render_template('profile.html', user=user)
+
+# Delete a resource 
+@app.route('/delete_resource/<int:resource_id>', methods=['POST'])
+def delete_resource(resource_id):
+    if 'user_id' not in session:
+        flash("Please log in to delete a resource.", "error")
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    conn = get_db_connection()
+    try:
+        # Ensure only the owner can delete the resource
+        resource = conn.execute("SELECT * FROM Resources WHERE resource_id = ? AND user_id = ?", (resource_id, user_id)).fetchone()
+        if not resource:
+            flash("You are not authorized to delete this resource.", "error")
+            return redirect(url_for('my_listings'))
+
+        conn.execute("DELETE FROM Resources WHERE resource_id = ?", (resource_id,))
+        conn.commit()
+        flash("Resource deleted successfully!", "success")
+    except Exception as e:
+        flash(f"An error occurred: {e}", "error")
+    finally:
+        conn.close()
+
+    return redirect(url_for('my_listings'))
+
+# Deleting community events 
+@app.route('/delete_community/<int:community_id>', methods=['POST'])
+def delete_community(community_id):
+    if 'user_id' not in session:
+        flash("Please log in to delete a community event.", "error")
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    conn = get_db_connection()
+    try:
+        # Ensure only the owner can delete the community event
+        community = conn.execute("SELECT * FROM Community WHERE community_id = ? AND user_id = ?", (community_id, user_id)).fetchone()
+        if not community:
+            flash("You are not authorized to delete this community event.", "error")
+            return redirect(url_for('my_listings'))
+
+        conn.execute("DELETE FROM Community WHERE community_id = ?", (community_id,))
+        conn.commit()
+        flash("Community event deleted successfully!", "success")
+    except Exception as e:
+        flash(f"An error occurred: {e}", "error")
+    finally:
+        conn.close()
+
+    return redirect(url_for('my_listings'))
+
+# route for updating a resource 
+@app.route('/edit_resource/<int:resource_id>', methods=['GET', 'POST'])
+def edit_resource(resource_id):
+    if 'user_id' not in session:
+        flash("Please log in to edit a resource.", "error")
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    conn = get_db_connection()
+    resource = conn.execute("SELECT * FROM Resources WHERE resource_id = ? AND user_id = ?", (resource_id, user_id)).fetchone()
+
+    if not resource:
+        flash("You are not authorized to edit this resource.", "error")
+        return redirect(url_for('my_listings'))
+
+    if request.method == 'POST':
+        title = request.form['title']
+        description = request.form['description']
+        category = request.form['category']
+        availability = request.form['availability']
+        
+        conn.execute('''
+            UPDATE Resources 
+            SET title = ?, description = ?, category = ?, availability = ?
+            WHERE resource_id = ? AND user_id = ?
+        ''', (title, description, category, availability, resource_id, user_id))
+        conn.commit()
+        conn.close()
+        flash("Resource updated successfully!", "success")
+        return redirect(url_for('my_listings'))
+
+    conn.close()
+    return render_template('edit_resource.html', resource=resource)
+
+# Route for updating a community
+@app.route('/edit_community/<int:community_id>', methods=['GET', 'POST'])
+def edit_community(community_id):
+    if 'user_id' not in session:
+        flash("Please log in to edit a community event.", "error")
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    conn = get_db_connection()
+    community = conn.execute("SELECT * FROM Community WHERE community_id = ? AND user_id = ?", (community_id, user_id)).fetchone()
+
+    if not community:
+        flash("You are not authorized to edit this community event.", "error")
+        return redirect(url_for('my_listings'))
+
+    if request.method == 'POST':
+        title = request.form['title']
+        description = request.form['description']
+        location = request.form['location']
+        availability = request.form['availability']
+        
+        conn.execute('''
+            UPDATE Community 
+            SET title = ?, description = ?, location = ?, availability = ?
+            WHERE community_id = ? AND user_id = ?
+        ''', (title, description, location, availability, community_id, user_id))
+        conn.commit()
+        conn.close()
+        flash("Community event updated successfully!", "success")
+        return redirect(url_for('my_listings'))
+
+    conn.close()
+    return render_template('edit_community.html', community=community)
+
+# functionality for my_listings
+@app.route('/my_listings', methods=['GET', 'POST'])
+def my_listings():
+    if 'user_id' not in session:
+        flash("Please log in to view your listings.", "error")
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    conn = get_db_connection()
+    # Fetch resources and community events created by the logged-in user
+    resources = conn.execute("SELECT * FROM Resources WHERE user_id = ?", (user_id,)).fetchall()
+    community_events = conn.execute("SELECT * FROM Community WHERE user_id = ?", (user_id,)).fetchall()
+    conn.close()
+
+    return render_template('my_listings.html', resources=resources, community_events=community_events)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
