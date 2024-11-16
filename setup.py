@@ -17,16 +17,6 @@ def setup_database():
         location TEXT
     )
     ''')
-    cursor.execute('''
-        CREATE TABLE Notifications (
-        notification_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
-        message TEXT,
-        is_read BOOLEAN DEFAULT 0,
-        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES Users(user_id)
-    )
-    ''')   
 
     
     # Create Resources Table
@@ -133,6 +123,8 @@ def register_user(name, email, password, profile_image=None, location=None):
     finally:
         # Close the database connection
         conn.close()
+
+
 
 if __name__ == '__main__':
     setup_database()

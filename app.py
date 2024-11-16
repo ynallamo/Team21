@@ -9,6 +9,8 @@ import hashlib
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Needed for session management
 
+
+
 # Configuration for file uploads
 UPLOAD_FOLDER = 'static/images'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
@@ -112,7 +114,28 @@ def dashboard():
         flash("Please log in to access the dashboard.", "error")
         return redirect(url_for('login'))
 
+    user_id = session['user_id']
+
+    # Fetch notifications for the user
+    notifications = get_notifications(user_id)
+
+    # Fetch other dashboard data (community feed and resources feed)
     conn = get_db_connection()
+    community_feed = conn.execute(
+        "SELECT * FROM Community ORDER BY date_posted DESC LIMIT 5"
+    ).fetchall()
+    resources_feed = conn.execute(
+        "SELECT * FROM Resources ORDER BY date_posted DESC LIMIT 5"
+    ).fetchall()
+    conn.close()
+
+    return render_template(
+        'dashboard.html',
+        notifications=notifications,
+        community_feed=community_feed,
+        resources_feed=resources_feed
+    )
+
 
     # Fetch top 4 highest-rated users
     top_rated_users = conn.execute(
@@ -417,6 +440,35 @@ def send_message(receiver_id):
 #     return redirect(url_for('item_details', item_id=item_id))
 
 #   Route to handle reservation
+
+def add_notification(user_id, message):
+    """Adds a notification to the database for a specific user."""
+    conn = get_db_connection()
+    conn.execute(
+        '''
+        INSERT INTO Notifications (user_id, message, is_read, timestamp)
+        VALUES (?, ?, 0, CURRENT_TIMESTAMP)
+        ''',
+        (user_id, message)
+    )
+    conn.commit()
+    conn.close()
+
+def get_notifications(user_id):
+    """Fetches notifications for a specific user."""
+    conn = get_db_connection()
+    notifications = conn.execute(
+        '''
+        SELECT * FROM Notifications
+        WHERE user_id = ?
+        ORDER BY timestamp DESC
+        LIMIT 10
+        ''',
+        (user_id,)
+    ).fetchall()
+    conn.close()
+    return notifications
+
 @app.route('/reserve/<int:item_id>', methods=['POST'])
 def reserve_item(item_id):
     if 'user_id' not in session:
@@ -429,7 +481,7 @@ def reserve_item(item_id):
 
     conn = get_db_connection()
     try:
-        # Check if the item is already reserved during the selected date range
+        # Check for conflicts
         conflicts = conn.execute('''
             SELECT * FROM Reservations
             WHERE item_id = ? AND (
@@ -443,17 +495,18 @@ def reserve_item(item_id):
             flash("The selected dates are unavailable. Please choose a different range.", "error")
             return redirect(url_for('item_details', item_id=item_id))
 
-        # Insert the reservation if no conflicts exist
+        # Insert the reservation
         conn.execute(
             "INSERT INTO Reservations (user_id, item_id, start_date, end_date) VALUES (?, ?, ?, ?)",
             (user_id, item_id, start_date, end_date)
         )
 
-        # Mark the item as unavailable
-        if conn.execute("SELECT * FROM Resources WHERE resource_id = ?", (item_id,)).fetchone():
-            conn.execute("UPDATE Resources SET availability = 'unavailable' WHERE resource_id = ?", (item_id,))
-        elif conn.execute("SELECT * FROM Community WHERE community_id = ?", (item_id,)).fetchone():
-            conn.execute("UPDATE Community SET availability = 'unavailable' WHERE community_id = ?", (item_id,))
+        # Notify the resource owner
+        resource = conn.execute("SELECT * FROM Resources WHERE resource_id = ?", (item_id,)).fetchone()
+        if resource:
+            owner_id = resource['user_id']
+            message = f"Your resource '{resource['title']}' has been reserved from {start_date} to {end_date}."
+            add_notification(owner_id, message)
 
         conn.commit()
         flash("Item reserved successfully!", "success")
