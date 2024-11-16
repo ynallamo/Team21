@@ -23,6 +23,11 @@
                     <form method="POST" action="{{ url_for('cancel_reservation', reservation_id=item['reservation_id']) }}" class="mt-3">
                         <button type="submit" class="btn btn-danger">Cancel Reservation</button>
                     </form>
+
+                    <!-- Organize Event Button (only for community spaces) -->
+                    {% if item['item_type'] == 'community' %}
+                    <a href="{{ url_for('organize_event', community_id=item['reservation_id']) }}" class="btn btn-secondary mt-3">Organize Event</a>
+                    {% endif %}
                 </div>
             </div>
         </div>

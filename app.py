@@ -5,6 +5,9 @@ import sqlite3
 from werkzeug.utils import secure_filename
 from math import ceil
 import hashlib 
+import smtplib  # For sending email
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Needed for session management
@@ -804,6 +807,46 @@ def my_listings():
     conn.close()
 
     return render_template('my_listings.html', resources=resources, community_events=community_events)
+
+@app.route('/organize_event/<int:community_id>', methods=['GET', 'POST'])
+def organize_event(community_id):
+    if 'user_id' not in session:
+        flash("Please log in to organize an event.", "error")
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        event_name = request.form['event_name']
+        event_details = request.form['event_details']
+        event_date = request.form['event_date']
+        event_time = request.form['event_time']
+        share_email = request.form.get('share_email')
+
+        # Save event details to the database
+        conn = get_db_connection()
+        try:
+            conn.execute('''
+                INSERT INTO Events (community_id, user_id, event_name, event_details, event_date, event_time)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ''', (community_id, session['user_id'], event_name, event_details, event_date, event_time))
+            conn.commit()
+        except Exception as e:
+            flash(f"Error saving event: {str(e)}", "error")
+        finally:
+            conn.close()
+
+        # If email sharing is selected
+        if share_email:
+            try:
+                send_event_email(share_email, event_name, event_details, event_date, event_time)
+                flash("Event created and email shared successfully!", "success")
+            except Exception as e:
+                flash(f"Event created but email sharing failed: {str(e)}", "error")
+        else:
+            flash("Event created successfully!", "success")
+
+        return redirect(url_for('reserved_items'))
+
+    return render_template('organize_event.html', community_id=community_id)
 
 if __name__ == '__main__':
     app.run(debug=True)
