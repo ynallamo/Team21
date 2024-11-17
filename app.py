@@ -14,8 +14,7 @@ import datetime
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Needed for session management
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 NOTIFICATIONS_FILE = 'notifications.json'
 
@@ -944,6 +943,71 @@ def organize_event(community_id):
         '''
 
     return render_template('organize_event.html', community_id=community_id)
+
+@app.route('/edit_profile', methods=['POST'])
+def edit_profile():
+    if 'user_id' not in session:
+        flash("Please log in to edit your profile.", "error")
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    name = request.form['name']
+    email = request.form['email']
+    location = request.form['location']
+
+    # Handle profile image upload
+    profile_image = None
+    if 'profile_image' in request.files:
+        image_file = request.files['profile_image']
+        if image_file and allowed_file(image_file.filename):
+            filename = secure_filename(image_file.filename)
+            profile_image = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            image_file.save(profile_image)
+
+    conn = get_db_connection()
+    try:
+        # Check if the email is already in use by another user
+        existing_email_user = conn.execute(
+            "SELECT * FROM Users WHERE email = ? AND user_id != ?",
+            (email, user_id)
+        ).fetchone()
+
+        if existing_email_user:
+            flash("This email is already in use by another user. Please choose a different email.", "error")
+            return redirect(url_for('profile'))
+
+        # Update the user's profile
+        if profile_image:
+            conn.execute(
+                '''
+                UPDATE Users 
+                SET name = ?, email = ?, location = ?, profile_image = ?
+                WHERE user_id = ?
+                ''',
+                (name, email, location, profile_image, user_id)
+            )
+        else:
+            conn.execute(
+                '''
+                UPDATE Users 
+                SET name = ?, email = ?, location = ?
+                WHERE user_id = ?
+                ''',
+                (name, email, location, user_id)
+            )
+
+        conn.commit()
+        flash("Profile updated successfully!", "success")
+    except Exception as e:
+        flash(f"An error occurred while updating your profile: {str(e)}", "error")
+    finally:
+        conn.close()
+
+    return redirect(url_for('profile'))
+
+
+                
+
 
 
 if __name__ == '__main__':

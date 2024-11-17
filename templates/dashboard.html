@@ -37,7 +37,18 @@
                 {% for user in top_rated_users %}
                 <div class="col-md-6 mb-3">
                     <div class="card">
-                        <img src="{{ user.profile_image }}" class="card-img-top" alt="{{ user.name }}'s image">
+                        <!-- Check if the user has a profile image -->
+                        {% if user.profile_image %}
+                            <img 
+                                src="{{ url_for('static', filename=user.profile_image) }}" 
+                                class="card-img-top" 
+                                alt="{{ user.name }}'s image">
+                        {% else %}
+                            <img 
+                                src="{{ url_for('static', filename='images/default_user.png') }}" 
+                                class="card-img-top" 
+                                alt="Default user image">
+                        {% endif %}
                         <div class="card-body">
                             <h5 class="card-title">{{ user.name }}</h5>
                             <p class="card-text">Rating: {{ user.rating if user.rating else "No ratings yet" }}</p>
@@ -56,7 +67,18 @@
                 {% for listing in recent_listings %}
                 <div class="col-md-6 mb-3">
                     <div class="card">
-                        <img src="{{ listing.images }}" class="card-img-top" alt="{{ listing.title }}'s image">
+                        <!-- Check if the listing has an image -->
+                        {% if listing.images %}
+                            <img 
+                                src="{{ url_for('static', filename=listing.images) }}" 
+                                class="card-img-top" 
+                                alt="{{ listing.title }}'s image">
+                        {% else %}
+                            <img 
+                                src="{{ url_for('static', filename='images/default_listing.png') }}" 
+                                class="card-img-top" 
+                                alt="Default listing image">
+                        {% endif %}
                         <div class="card-body">
                             <h5 class="card-title">{{ listing.title }}</h5>
                             <p class="card-text">{{ listing.category }}</p>
@@ -71,4 +93,3 @@
     </div>
 </div>
 {% endblock %}
-

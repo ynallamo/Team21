@@ -16,7 +16,14 @@
     {% for event in community_entries %}
     <div class="col-md-4 mb-4">
         <div class="card">
-            <img src="{{ event['images'] }}" class="card-img-top" alt="Event image">
+            <!-- Updated to use url_for for image path -->
+            <img 
+                src="{{ url_for('static', filename=event['images']) }}" 
+                class="card-img-top" 
+                alt="Event image"
+                onerror="this.src='{{ url_for('static', filename='images/default_event.png') }}';" 
+                style="height: 200px; object-fit: cover;"
+            >
             <div class="card-body">
                 <h5 class="card-title">{{ event['title'] }}</h5>
                 <p class="card-text">{{ event['description'] }}</p>
@@ -30,3 +37,4 @@
     {% endfor %}
 </div>
 {% endblock %}
+
