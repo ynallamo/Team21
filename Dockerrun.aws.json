@@ -1,0 +1,15 @@
+{
+    "AWSEBDockerrunVersion": "1",
+    "Image": {
+      "Name": "your-docker-image-name",
+      "Update": "true"
+    },
+    "Ports": [
+      {
+        "ContainerPort": 80
+      }
+    ],
+    "Volumes": [],
+    "Logging": "/var/log/nginx"
+  }
+  
